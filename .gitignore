@@ -1,0 +1,13 @@
+/bin/
+/rasat
+/rasat.exe
+/coverage.out
+web/node_modules/
+web/dist/
+.DS_Store
+*.test
+*.out
+.env
+.env.*
+!.env.example
+.local/

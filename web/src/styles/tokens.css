@@ -1,0 +1,64 @@
+:root,
+.theme-odurgut {
+  --color-bg-body: 247 247 248;
+  --color-bg-code: 237 237 239;
+  --color-bg-card: 250 250 250;
+  --color-bg-selection: 10 10 10;
+  --color-text-heading: 0 0 0;
+  --color-text-body: 40 38 35;
+  --color-text-bold: 10 10 10;
+  --color-text-muted: 115 115 115;
+  --color-text-link: 10 10 10;
+  --color-text-code: 10 10 10;
+  --color-text-selection: 255 255 255;
+  --color-border-code: 210 210 213;
+  --color-border-subtle: 210 210 213;
+  --color-primary-main: 10 10 10;
+  --color-ok: 6 119 71;
+  --color-warn: 168 88 8;
+  --color-error: 176 34 24;
+  --color-accent: 36 92 164;
+  --color-svc-0: 61 90 128;
+  --color-svc-1: 107 76 122;
+  --color-svc-2: 45 106 79;
+  --color-svc-3: 138 90 43;
+  --color-svc-4: 74 111 165;
+  --color-svc-5: 122 62 62;
+  --line: rgb(var(--color-text-heading) / 0.08);
+  --line-strong: rgb(var(--color-text-heading) / 0.16);
+  --scroll-thumb: rgb(var(--color-text-heading) / 0.2);
+  --scroll-thumb-hover: rgb(var(--color-text-heading) / 0.36);
+  --dock-std: 18rem;
+}
+
+.theme-odurgut.dark {
+  --color-bg-body: 10 10 10;
+  --color-bg-code: 24 24 24;
+  --color-bg-card: 17 17 17;
+  --color-bg-selection: 220 220 220;
+  --color-text-heading: 255 255 255;
+  --color-text-body: 185 183 179;
+  --color-text-bold: 240 240 240;
+  --color-text-muted: 120 120 120;
+  --color-text-link: 220 220 220;
+  --color-text-code: 220 220 220;
+  --color-text-selection: 10 10 10;
+  --color-border-code: 40 40 40;
+  --color-border-subtle: 30 30 30;
+  --color-primary-main: 255 255 255;
+  --color-ok: 62 180 112;
+  --color-warn: 216 148 48;
+  --color-error: 232 88 76;
+  --color-accent: 120 168 232;
+  --color-svc-0: 138 164 196;
+  --color-svc-1: 180 146 196;
+  --color-svc-2: 124 188 152;
+  --color-svc-3: 212 160 106;
+  --color-svc-4: 142 176 216;
+  --color-svc-5: 200 136 136;
+  --line: rgb(var(--color-text-heading) / 0.08);
+  --line-strong: rgb(var(--color-text-heading) / 0.16);
+  --scroll-thumb: rgb(var(--color-text-heading) / 0.2);
+  --scroll-thumb-hover: rgb(var(--color-text-heading) / 0.36);
+  --dock-std: 18rem;
+}
