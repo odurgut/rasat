@@ -26,4 +26,11 @@ FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=build /out/rasat /rasat
 USER nonroot:nonroot
 EXPOSE 8080 4317
+LABEL org.opencontainers.image.title="Rasat" \
+  org.opencontainers.image.description="Self-hosted observability for OpenTelemetry traces, logs, and a service map" \
+  org.opencontainers.image.url="https://rasat.dev" \
+  org.opencontainers.image.documentation="https://rasat.dev/docs/getting-started" \
+  org.opencontainers.image.source="https://github.com/odurgut/rasat" \
+  org.opencontainers.image.licenses="Apache-2.0" \
+  org.opencontainers.image.vendor="odurgut"
 ENTRYPOINT ["/rasat"]

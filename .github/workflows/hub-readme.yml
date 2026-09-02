@@ -1,0 +1,29 @@
+# Push the Hub Overview (short description + this markdown) on main.
+# Image builds still happen only on version tags (release.yml).
+
+name: hub-readme
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - deploy/docker-hub.md
+      - .github/workflows/hub-readme.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dockerhub:
+    runs-on: ubuntu-latest
+    environment: DOCKERHUB
+    steps:
+      - uses: actions/checkout@v5
+      - uses: peter-evans/dockerhub-description@v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: odurgut/rasat
+          short-description: Self-hosted observability for OpenTelemetry traces, logs, and a service map
+          readme-filepath: ./deploy/docker-hub.md
