@@ -79,13 +79,11 @@ jobs:
           build-args: |
             VERSION=${{ github.ref_name }}
             COMMIT=${{ github.sha }}
-      - uses: peter-evans/dockerhub-description@v5
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: odurgut/rasat
-          short-description: Self-hosted observability for OpenTelemetry traces, logs, and a service map
-          readme-filepath: ./deploy/docker-hub.md
+      - name: Update Docker Hub overview
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: bash deploy/push-hub-overview.sh
 
   github-release:
     needs: docker
