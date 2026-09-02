@@ -100,6 +100,7 @@ export function App() {
         {seen.has("traces") ? (
           <ShellView active={view === "traces"}>
             <TracesView
+              active={view === "traces"}
               reloadToken={tracesEpoch}
               onOpenLogs={(id) => {
                 setLogsTrace(id);
@@ -112,6 +113,7 @@ export function App() {
         {seen.has("services") ? (
           <ShellView active={view === "services"}>
             <ServicesView
+              active={view === "services"}
               focus={serviceFocus}
               focusTick={serviceTick}
               onOpen={openTracesForService}
@@ -121,12 +123,17 @@ export function App() {
         ) : null}
         {seen.has("map") ? (
           <ShellView active={view === "map"}>
-            <MapView onOpen={openTracesForService} onOpenService={openService} />
+            <MapView active={view === "map"} onOpen={openTracesForService} onOpenService={openService} />
           </ShellView>
         ) : null}
         {seen.has("logs") ? (
           <ShellView active={view === "logs"}>
-            <LogsView initialTraceID={logsTrace} onOpenTrace={openTrace} onOpenService={openService} />
+            <LogsView
+              active={view === "logs"}
+              initialTraceID={logsTrace}
+              onOpenTrace={openTrace}
+              onOpenService={openService}
+            />
           </ShellView>
         ) : null}
       </div>

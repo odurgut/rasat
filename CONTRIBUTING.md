@@ -51,7 +51,9 @@ Rules:
 - Do not add a test that needs a live ClickHouse, a live Hub push, or `docker compose` in CI.
 - UI: TypeScript `strict` stays on. Do not enlarge type to 14px. UI is 12px mono, `border-radius: 0`, no type scale.
 
-To run the product from this tree: `make compose-build` (image from the checkout + ClickHouse). `make compose-up` pulls Hub `odurgut/rasat`, it does not build your branch.
+To run this tree locally: `make compose-build` (image from the checkout + ClickHouse). `make compose-down` stops containers and **keeps** the ClickHouse volume. `make compose-build` again is the same data. You do not need `down` between rebuilds; `compose-build` recreates Rasat and leaves ClickHouse on the volume.
+
+`make compose-up` pulls Hub `odurgut/rasat`. It does not build your branch. `make compose-reset` is `down -v`: the volume is gone.
 
 ## Pipeline
 

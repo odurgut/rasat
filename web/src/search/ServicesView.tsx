@@ -6,13 +6,14 @@ import type { ChartSeries } from "./chart";
 import { formatDuration, formatPct, formatRate, formatTimestamp } from "./format";
 import { PrimaryButton } from "../chrome/PrimaryButton";
 import { GhostButton } from "../chrome/GhostButton";
-import { formFromSearchParams, toRFC3339, writePageURL, defaultForm, type SearchForm } from "./query";
+import { formFromSearchParams, slidingWindow, writePageURL, defaultForm, type SearchForm } from "./query";
 import { serviceRampIndex } from "./color";
 import { Trunc } from "./trunc";
 import { Workspace } from "../chrome/Workspace";
 import { TabCard } from "./TabCard";
 
 type ServicesViewProps = {
+  active?: boolean;
   focus?: string;
   focusTick?: number;
   onOpen: (service: string) => void;
@@ -27,10 +28,11 @@ const RANGE_PRESETS = [
 ] as const;
 
 const maxDashOps = 8;
+const LIST_POLL_MS = 15_000;
 
 type RangePreset = (typeof RANGE_PRESETS)[number];
 
-export function ServicesView({ focus = "", focusTick = 0, onOpen, onOpenTraces }: ServicesViewProps) {
+export function ServicesView({ active = true, focus = "", focusTick = 0, onOpen, onOpenTraces }: ServicesViewProps) {
   const initial = useMemo(() => windowFromSearch(), []);
   const [range, setRange] = useState<RangePreset>(initial.preset);
   const [start, setStart] = useState(initial.start);
@@ -49,10 +51,15 @@ export function ServicesView({ focus = "", focusTick = 0, onOpen, onOpenTraces }
   const [dashError, setDashError] = useState("");
   const seq = useRef(0);
   const dashSeq = useRef(0);
+  const fetching = useRef(false);
+  const wasActive = useRef(active);
+  const rangeRef = useRef(range);
+  rangeRef.current = range;
 
   useEffect(() => {
     const ac = new AbortController();
     const n = ++seq.current;
+    fetching.current = true;
     void (async () => {
       try {
         const form = {
@@ -99,10 +106,36 @@ export function ServicesView({ focus = "", focusTick = 0, onOpen, onOpenTraces }
         setEdges([]);
         setError(msg);
         setStatus("error");
+      } finally {
+        if (n === seq.current) {
+          fetching.current = false;
+        }
       }
     })();
     return () => ac.abort();
   }, [start, end]);
+
+  useEffect(() => {
+    if (!active) {
+      wasActive.current = false;
+      return;
+    }
+    const entering = !wasActive.current;
+    wasActive.current = true;
+    const slide = () => {
+      if (document.visibilityState === "hidden" || fetching.current) {
+        return;
+      }
+      const win = rangeWindow(rangeRef.current.ms);
+      setStart(win.start);
+      setEnd(win.end);
+    };
+    if (entering) {
+      slide();
+    }
+    const id = window.setInterval(slide, LIST_POLL_MS);
+    return () => window.clearInterval(id);
+  }, [active]);
 
   useEffect(() => {
     if (focus) {
@@ -559,9 +592,7 @@ function slowestOperations(rows: OperationRow[]): OperationRow[] {
 }
 
 function rangeWindow(ms: number, now = new Date()): { start: string; end: string } {
-  const end = now;
-  const start = new Date(end.getTime() - ms);
-  return { start: toRFC3339(start), end: toRFC3339(end) };
+  return slidingWindow(ms, now);
 }
 
 function windowFromSearch(): { preset: RangePreset; start: string; end: string } {

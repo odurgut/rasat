@@ -3,7 +3,7 @@ import { SearchError, getMetrics, getServiceMap, type ServiceMapEdge, type Servi
 import { formatDuration, formatPct } from "./format";
 import { PrimaryButton } from "../chrome/PrimaryButton";
 import { GhostButton } from "../chrome/GhostButton";
-import { defaultForm, formFromSearchParams } from "./query";
+import { formFromSearchParams, slidingWindow, windowSpanMs } from "./query";
 import { serviceRampIndex } from "./color";
 import { layoutServiceMap, type LaidMapEdge, type LaidMapNode } from "./mapLayout";
 import { Jump } from "../chrome/Jump";
@@ -11,11 +11,12 @@ import { Workspace } from "../chrome/Workspace";
 import { FloatTip, Trunc } from "./trunc";
 
 type MapViewProps = {
+  active: boolean;
   onOpen: (service: string) => void;
   onOpenService: (service: string) => void;
 };
 
-export function MapView({ onOpen, onOpenService }: MapViewProps) {
+export function MapView({ active, onOpen, onOpenService }: MapViewProps) {
   const [nodes, setNodes] = useState<ServiceMapNode[]>([]);
   const [edges, setEdges] = useState<ServiceMapEdge[]>([]);
   const [p95, setP95] = useState<Record<string, number>>({});
@@ -24,21 +25,32 @@ export function MapView({ onOpen, onOpenService }: MapViewProps) {
   const [selected, setSelected] = useState("");
   const [mode, setMode] = useState<"calls" | "errors">("calls");
   const seq = useRef(0);
+  const nodesRef = useRef(nodes);
+  const fetching = useRef(false);
+  nodesRef.current = nodes;
 
   useEffect(() => {
+    if (!active) {
+      return;
+    }
+    let closed = false;
     const ac = new AbortController();
-    const n = ++seq.current;
-    void (async () => {
+    const load = async (signal?: AbortSignal) => {
+      if (fetching.current) {
+        return;
+      }
+      fetching.current = true;
+      const n = ++seq.current;
       try {
         const form = catalogForm();
         const [graph, metrics] = await Promise.all([
-          getServiceMap(form, ac.signal),
-          getMetrics({ start: form.start, end: form.end, limit: "100" }, ac.signal).then(
+          getServiceMap(form, signal),
+          getMetrics({ start: form.start, end: form.end, limit: "100" }, signal).then(
             (body) => body.metrics,
             () => [],
           ),
         ]);
-        if (n !== seq.current) {
+        if (closed || n !== seq.current) {
           return;
         }
         const nextP95: Record<string, number> = {};
@@ -52,7 +64,7 @@ export function MapView({ onOpen, onOpenService }: MapViewProps) {
         setP95(nextP95);
         setStatus("ok");
       } catch (e) {
-        if (n !== seq.current) {
+        if (closed || n !== seq.current) {
           return;
         }
         if (e instanceof DOMException && e.name === "AbortError") {
@@ -64,10 +76,25 @@ export function MapView({ onOpen, onOpenService }: MapViewProps) {
         setP95({});
         setError(msg);
         setStatus("error");
+      } finally {
+        if (n === seq.current) {
+          fetching.current = false;
+        }
       }
-    })();
-    return () => ac.abort();
-  }, []);
+    };
+    void load(ac.signal);
+    const id = window.setInterval(() => {
+      if (nodesRef.current.length > 0) {
+        return;
+      }
+      void load();
+    }, 5_000);
+    return () => {
+      closed = true;
+      ac.abort();
+      window.clearInterval(id);
+    };
+  }, [active]);
 
   const node = nodes.find((r) => r.service === selected);
   const incoming = edges.filter((e) => e.to === selected);
@@ -524,11 +551,9 @@ function clipName(name: string): string {
 
 function catalogForm() {
   const form = formFromSearchParams(new URLSearchParams(window.location.search));
-  if (!form.start || !form.end) {
-    const d = defaultForm();
-    form.start = d.start;
-    form.end = d.end;
-  }
+  const win = slidingWindow(windowSpanMs(form.start, form.end));
+  form.start = win.start;
+  form.end = win.end;
   form.limit = "100";
   return form;
 }

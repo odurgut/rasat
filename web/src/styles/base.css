@@ -292,12 +292,22 @@ p {
 }
 
 .rail-version {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
   color: rgb(var(--color-text-muted));
   letter-spacing: 0.04em;
   max-width: 12rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
+}
+
+.rail-version:hover {
+  color: rgb(var(--color-text-heading));
 }
 
 .theme-pair {

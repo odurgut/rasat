@@ -16,18 +16,20 @@ import { useRowEnter } from "./rowEnter";
 type Status = "idle" | "searching" | "ok" | "error";
 
 type LogsViewProps = {
+  active?: boolean;
   initialTraceID?: string;
   onOpenTrace: (traceID: string) => void;
   onOpenService?: (service: string) => void;
 };
 
-export function LogsView({ initialTraceID = "", onOpenTrace, onOpenService }: LogsViewProps) {
+export function LogsView({ active = true, initialTraceID = "", onOpenTrace, onOpenService }: LogsViewProps) {
   const [form, setForm] = useState<LogForm>(() => defaultLogForm(new Date(), initialTraceID));
   const [rows, setRows] = useState<LogRow[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const [selected, setSelected] = useState<LogRow | null>(null);
   const seq = useRef(0);
+  const prevTrace = useRef(initialTraceID);
   const formRef = useRef(form);
   const statusRef = useRef(status);
   const liveTailRef = useRef(true);
@@ -116,10 +118,18 @@ export function LogsView({ initialTraceID = "", onOpenTrace, onOpenService }: Lo
   }
 
   useEffect(() => {
+    if (!active) {
+      return;
+    }
+    const traceChanged = prevTrace.current !== initialTraceID;
+    prevTrace.current = initialTraceID;
+    if (!traceChanged && statusRef.current === "ok") {
+      return;
+    }
     const ac = new AbortController();
     void runSearch(defaultLogForm(new Date(), initialTraceID), ac.signal);
     return () => ac.abort();
-  }, [initialTraceID]);
+  }, [active, initialTraceID]);
 
   useEffect(() => {
     let closed = false;

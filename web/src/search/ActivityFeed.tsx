@@ -60,9 +60,6 @@ export function ActivityFeed({ start, end, rangeKey, slowNs, active, onOpen }: A
   ingestLiveRef.current = ingestLive;
 
   useEffect(() => {
-    if (!active) {
-      return;
-    }
     let closed = false;
     const ac = new AbortController();
     let ws: WebSocket | null = null;
@@ -132,7 +129,45 @@ export function ActivityFeed({ start, end, rangeKey, slowNs, active, onOpen }: A
       }
       ws?.close();
     };
-  }, [active, rangeKey]);
+  }, [rangeKey]);
+
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+    let closed = false;
+    const pull = async () => {
+      if (closed || rowsRef.current.length > 0) {
+        return;
+      }
+      try {
+        const found = await searchTraces({
+          service: "",
+          op: "",
+          min: "",
+          status: "",
+          start,
+          end,
+          limit: String(feedLimit()),
+        });
+        if (closed || found.length === 0 || rowsRef.current.length > 0) {
+          return;
+        }
+        pendingRef.current = [];
+        setPendingCount(0);
+        setRows(found);
+        setEpoch((n) => n + 1);
+      } catch {
+        return;
+      }
+    };
+    void pull();
+    const id = window.setInterval(() => void pull(), 5_000);
+    return () => {
+      closed = true;
+      window.clearInterval(id);
+    };
+  }, [active, rangeKey, start, end]);
 
   const enter = useRowEnter(
     rows.map((r) => r.trace_id),

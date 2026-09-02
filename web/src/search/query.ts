@@ -57,16 +57,29 @@ export function coverTraceWindow(
   return { start: toRFC3339(new Date(start)), end: toRFC3339(new Date(end)) };
 }
 
+export function slidingWindow(spanMs: number, now = new Date()): { start: string; end: string } {
+  const ms = Number.isFinite(spanMs) && spanMs > 0 ? spanMs : 24 * 60 * 60 * 1000;
+  return { start: toRFC3339(new Date(now.getTime() - ms)), end: toRFC3339(now) };
+}
+
+export function windowSpanMs(start: string, end: string, fallbackMs = 24 * 60 * 60 * 1000): number {
+  const a = Date.parse(start);
+  const b = Date.parse(end);
+  if (Number.isFinite(a) && Number.isFinite(b) && b > a) {
+    return b - a;
+  }
+  return fallbackMs;
+}
+
 export function defaultForm(now = new Date()): SearchForm {
-  const end = now;
-  const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
+  const win = slidingWindow(24 * 60 * 60 * 1000, now);
   return {
     service: "",
     op: "",
     min: "",
     status: "",
-    start: toRFC3339(start),
-    end: toRFC3339(end),
+    start: win.start,
+    end: win.end,
     limit: "50",
   };
 }

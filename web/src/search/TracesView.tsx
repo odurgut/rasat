@@ -17,10 +17,12 @@ function readInitialForm(): SearchForm {
 }
 
 export function TracesView({
+  active = true,
   reloadToken = 0,
   onOpenLogs,
   onOpenService,
 }: {
+  active?: boolean;
   reloadToken?: number;
   onOpenLogs?: (traceID: string) => void;
   onOpenService?: (service: string) => void;
@@ -36,6 +38,7 @@ export function TracesView({
   const [traceLoading, setTraceLoading] = useState(false);
   const seq = useRef(0);
   const traceSeq = useRef(0);
+  const prevToken = useRef(reloadToken);
   const formRef = useRef(form);
   const statusRef = useRef(status);
   const liveTailRef = useRef(true);
@@ -148,6 +151,14 @@ export function TracesView({
   }
 
   useEffect(() => {
+    if (!active) {
+      return;
+    }
+    const tokenChanged = prevToken.current !== reloadToken;
+    prevToken.current = reloadToken;
+    if (!tokenChanged && statusRef.current === "ok") {
+      return;
+    }
     const ac = new AbortController();
     const next = readInitialForm();
     setForm(next);
@@ -163,7 +174,7 @@ export function TracesView({
       void runSearch(next, ac.signal);
     }
     return () => ac.abort();
-  }, [reloadToken]);
+  }, [active, reloadToken]);
 
   useEffect(() => {
     let closed = false;

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type TransitionEvent } from "react";
 import { getBuild, type BuildInfo } from "../search/api";
+import { FloatTip } from "../search/trunc";
 import type { Theme } from "../theme";
 import { views, type View } from "../views";
 
@@ -38,7 +39,7 @@ export function Chrome({ view, theme, onView, onTheme }: ChromeProps): ReactNode
   return (
     <header className="shell-rail">
       <h1 className="brand">
-        <BrandMark />
+        <BrandMark onHome={() => onView("overview")} />
       </h1>
       <nav className="nav" aria-label="primary">
         {views.map((v) => (
@@ -53,11 +54,7 @@ export function Chrome({ view, theme, onView, onTheme }: ChromeProps): ReactNode
         ))}
       </nav>
       <div className="shell-rail-foot">
-        {build ? (
-          <span className="rail-version" title={build.commit ? `${build.version} ${build.commit}` : build.version}>
-            {build.version}
-          </span>
-        ) : null}
+        {build ? <VersionMark info={build} /> : null}
         <button
           type="button"
           className="theme-pair"
@@ -72,6 +69,51 @@ export function Chrome({ view, theme, onView, onTheme }: ChromeProps): ReactNode
         </button>
       </div>
     </header>
+  );
+}
+
+function buildLabel(info: BuildInfo): string {
+  if (info.commit && !info.version.includes(info.commit)) {
+    return `${info.version} ${info.commit}`;
+  }
+  return info.version;
+}
+
+function VersionMark({ info }: { info: BuildInfo }): ReactNode {
+  const [copied, setCopied] = useState(false);
+  const [tip, setTip] = useState<{ x: number; y: number } | null>(null);
+  const full = buildLabel(info);
+
+  useEffect(() => {
+    if (!copied) {
+      return;
+    }
+    const t = window.setTimeout(() => setCopied(false), 1200);
+    return () => window.clearTimeout(t);
+  }, [copied]);
+
+  return (
+    <>
+      <button
+        type="button"
+        className="rail-version"
+        aria-label={`copy ${full}`}
+        onMouseEnter={(e) => {
+          const r = e.currentTarget.getBoundingClientRect();
+          setTip({ x: Math.min(Math.max(8, r.left), window.innerWidth - 280), y: r.bottom + 6 });
+        }}
+        onMouseLeave={() => setTip(null)}
+        onClick={() => {
+          void navigator.clipboard.writeText(full).then(
+            () => setCopied(true),
+            () => undefined,
+          );
+        }}
+      >
+        {copied ? "copied" : info.version}
+      </button>
+      {tip ? <FloatTip x={tip.x} y={tip.y}>{full}</FloatTip> : null}
+    </>
   );
 }
 
@@ -91,7 +133,7 @@ function BrandGlyphs({ strip, prefix }: { strip: string; prefix: string }): Reac
   ));
 }
 
-function BrandMark(): ReactNode {
+function BrandMark({ onHome }: { onHome: () => void }): ReactNode {
   const ref = useRef<HTMLAnchorElement>(null);
 
   function spinOn(): void {
@@ -134,6 +176,10 @@ function BrandMark(): ReactNode {
       href="/"
       aria-label="rasat"
       style={{ "--reel-letter": REEL_LETTER, "--reel-loop": REEL_LOOP } as CSSProperties}
+      onClick={(e) => {
+        e.preventDefault();
+        onHome();
+      }}
       onMouseEnter={spinOn}
       onMouseLeave={spinOff}
       onFocus={spinOn}
@@ -143,8 +189,7 @@ function BrandMark(): ReactNode {
       {BRAND_REELS.map((strip, i) => (
         <span key={`${BRAND[i]}-${i}`} className={`brand-cell svc-${i}`}>
           <span className="brand-reel" aria-hidden="true">
-            <BrandBox i={i} />
-            <BrandGlyphs strip={strip} prefix="a" />
+            <BrandBox i={i} /> <BrandGlyphs strip={strip} prefix="a" />
             <span className="brand-slot">{BRAND[i]}</span>
             <BrandGlyphs strip={strip} prefix="b" />
             <BrandBox i={i} />

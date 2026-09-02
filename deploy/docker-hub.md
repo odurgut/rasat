@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/odurgut/rasat/main/docs/images/logo.svg" width="150" height="65" alt="Rasat">
+  <img src="https://raw.githubusercontent.com/odurgut/rasat/main/docs/images/logo.svg" width="150" height="65" style="width:150px;height:65px" alt="Rasat">
 </p>
 
 # Rasat

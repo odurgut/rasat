@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { SearchError, getErrorCauses, getMetrics, type ErrorCause, type MetricPoint, type ServiceMetrics } from "./api";
 import { formatClock, formatDeltaPct, formatDuration, formatPct, formatRate } from "./format";
 import { GhostButton } from "../chrome/GhostButton";
-import { defaultForm, formFromSearchParams, toRFC3339, writePageURL, type SearchForm } from "./query";
+import { defaultForm, formFromSearchParams, slidingWindow, toRFC3339, writePageURL, type SearchForm } from "./query";
 import { serviceRampIndex } from "./color";
 import { Trunc } from "./trunc";
 import { DashChart } from "./DashChart";
@@ -46,12 +46,15 @@ export function OverviewView({ active, onOpenService, onOpenTraces, onOpenTrace 
   const statusRef = useRef(status);
   const rangeRef = useRef(range);
   const rangeLabelRef = useRef(range.label);
+  const fetching = useRef(false);
+  const wasActive = useRef(active);
   statusRef.current = status;
   rangeRef.current = range;
 
   useEffect(() => {
     const ac = new AbortController();
     const n = ++seq.current;
+    fetching.current = true;
     const rangeChanged = rangeLabelRef.current !== range.label;
     rangeLabelRef.current = range.label;
     const silent = statusRef.current === "ok" && !rangeChanged;
@@ -102,6 +105,10 @@ export function OverviewView({ active, onOpenService, onOpenTraces, onOpenTrace 
         setWindowS(0);
         setError(msg);
         setStatus("error");
+      } finally {
+        if (n === seq.current) {
+          fetching.current = false;
+        }
       }
     })();
     return () => ac.abort();
@@ -109,16 +116,22 @@ export function OverviewView({ active, onOpenService, onOpenTraces, onOpenTrace 
 
   useEffect(() => {
     if (!active) {
+      wasActive.current = false;
       return;
     }
+    const entering = !wasActive.current;
+    wasActive.current = true;
     const slide = () => {
-      if (document.visibilityState === "hidden") {
+      if (document.visibilityState === "hidden" || fetching.current) {
         return;
       }
       const win = rangeWindow(rangeRef.current.ms);
       setStart(win.start);
       setEnd(win.end);
     };
+    if (entering) {
+      slide();
+    }
     const id = window.setInterval(slide, METRICS_POLL_MS);
     const onVis = () => {
       if (document.visibilityState === "visible") {
@@ -444,7 +457,7 @@ function splitWindow(start: string, end: string): { first: { start: string; end:
 }
 
 function rangeWindow(ms: number, now = new Date()): { start: string; end: string } {
-  return { start: toRFC3339(new Date(now.getTime() - ms)), end: toRFC3339(now) };
+  return slidingWindow(ms, now);
 }
 
 function windowFromSearch(): { preset: RangePreset; start: string; end: string } {
