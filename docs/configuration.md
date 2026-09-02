@@ -7,7 +7,7 @@ description: Environment variables that control Rasat.
 
 Rasat is configured entirely through the environment. There is no config file. Empty or unset variables use the defaults below.
 
-Copy `.env.example` as a checklist when you deploy. Do not commit secrets.
+Copy `.env.example` as a checklist. Set `RASAT_CLICKHOUSE_*` to the ClickHouse you run. Do not commit secrets.
 
 ## Listeners and process
 
@@ -24,10 +24,10 @@ Copy `.env.example` as a checklist when you deploy. Do not commit secrets.
 
 | Variable | Default | Description |
 |---|---|---|
-| `RASAT_CLICKHOUSE_ADDR` | `127.0.0.1:9000` | Native protocol `host:port` |
+| `RASAT_CLICKHOUSE_ADDR` | `127.0.0.1:9000` | Native protocol `host:port` of **your** ClickHouse |
 | `RASAT_CLICKHOUSE_DATABASE` | `rasat` | Database; created during migrate |
-| `RASAT_CLICKHOUSE_USER` | `default` | Compose uses `rasat` |
-| `RASAT_CLICKHOUSE_PASSWORD` | empty | Compose sets a password |
+| `RASAT_CLICKHOUSE_USER` | `default` | Must be able to create the database and tables |
+| `RASAT_CLICKHOUSE_PASSWORD` | empty | Match the ClickHouse user |
 | `RASAT_CLICKHOUSE_PING_TIMEOUT` | `2s` | `/ready` ping |
 | `RASAT_CLICKHOUSE_DIAL_TIMEOUT` | `5s` | Connect |
 | `RASAT_CLICKHOUSE_MIGRATE_TIMEOUT` | `30s` | Schema DDL on startup |
@@ -56,5 +56,3 @@ JSON logs in production, text on a workstation:
 ```bash
 RASAT_LOG_FORMAT=text RASAT_HTTP_ADDR=:8080 rasat
 ```
-
-Compose already sets the ClickHouse address to the `clickhouse` service and matching user/password. Override there if you change credentials.

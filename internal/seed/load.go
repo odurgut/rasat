@@ -126,10 +126,7 @@ func RunLoad(ctx context.Context, exp Exporter, opt LoadOptions) (LoadStats, err
 
 	committed := 0
 producer:
-	for {
-		if ctx.Err() != nil {
-			break
-		}
+	for ctx.Err() == nil {
 		if opt.Duration > 0 && time.Since(start) >= opt.Duration {
 			break
 		}

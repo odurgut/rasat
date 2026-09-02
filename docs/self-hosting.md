@@ -1,11 +1,11 @@
 ---
 title: Self-hosting
-description: Deploy Rasat with ClickHouse, health checks, storage, and scaling constraints.
+description: Run Rasat against your ClickHouse — health, storage, and scaling constraints.
 ---
 
 # Self-hosting
 
-Rasat is **self-hosted**. A complete install is two processes: **ClickHouse** and **Rasat**. The UI is inside the Rasat process. There is no separate frontend server in production.
+Rasat is **self-hosted**. You run **ClickHouse**; you run **Rasat**. The UI is inside the Rasat process. There is no separate frontend server in production. We do not manage ClickHouse for you.
 
 ## Architecture
 
@@ -24,38 +24,38 @@ ClickHouse is the system of record. Rasat migrates its schema on startup. If Cli
 
 The **live stream hub is in-process**. Connected browsers subscribe to that process. A second Rasat replica does not share WebSockets: live overview, traces, and logs would split. Search and ingest can sit behind a load balancer; **keep one replica** if you care about a single live feed. See [Current limits](limits.md).
 
-## Docker Compose
+## ClickHouse
 
-This is the supported install. The published file is `deploy/docker-compose.yml`. It runs ClickHouse 24.8 and Rasat, wires matching credentials, waits for ClickHouse health, and publishes:
+You operate it: package, VM, existing 24.8, Docker, whatever you already use. Rasat needs:
 
-| Port | Service |
+- Native protocol **9000** (`RASAT_CLICKHOUSE_ADDR` as `host:port`). HTTP 8123 is unused.
+- A database name (`RASAT_CLICKHOUSE_DATABASE`, default `rasat`). Schema is created on startup for **24.8**. This version does not migrate older Rasat databases.
+- A user that can create that database and tables.
+
+Versions: [Compatibility](compatibility.md). Disk, TTL, backups, and HA are ClickHouse problems — [Storage and retention](#storage-and-retention).
+
+## Run Rasat
+
+Image [`odurgut/rasat`](https://hub.docker.com/r/odurgut/rasat) or a binary from `make build`. Distroless, non-root. Configuration is **environment only** — [Configuration](configuration.md). Defaults are `127.0.0.1:9000`, user `default`, empty password; set `RASAT_CLICKHOUSE_*` to match **your** server.
+
+```bash
+docker run -d --name rasat \
+  -p 8080:8080 -p 4317:4317 \
+  -e RASAT_CLICKHOUSE_ADDR=clickhouse.internal:9000 \
+  -e RASAT_CLICKHOUSE_DATABASE=rasat \
+  -e RASAT_CLICKHOUSE_USER=rasat \
+  -e RASAT_CLICKHOUSE_PASSWORD=rasat \
+  odurgut/rasat:0.1.0
+```
+
+Same variables in systemd, Kubernetes, or a shell. This version has **no authentication**; anyone who can reach port 8080 can query and ingest. Bind it to a network you trust.
+
+| Port | Role |
 |---|---|
-| 8080 | Rasat HTTP |
+| 8080 | Rasat HTTP (UI, OTLP/HTTP, API) |
 | 4317 | Rasat OTLP/gRPC |
-| 9000 | ClickHouse native (optional to publish; Rasat uses it on the Docker network) |
-| 8123 | ClickHouse HTTP (Compose publishes it; Rasat does not need it) |
 
-```bash
-make compose-up
-```
-
-`make compose-up` passes `git describe` into the image (`GET /version`). The same Compose file without `VERSION` / `COMMIT` reports `dev`.
-
-The Rasat image is distroless and runs as non-root. Compose default credentials are for a **private** machine. Change the password before this is reachable on a network you do not trust. Rasat has **no authentication** in this version; anyone who can reach port 8080 can query and ingest.
-
-Stop:
-
-```bash
-docker compose -f deploy/docker-compose.yml down
-```
-
-Add `-v` only when you intend to delete stored telemetry.
-
-## Binary
-
-Run a Rasat binary against a ClickHouse you already operate. Listen addresses and ClickHouse DSN are [environment variables](configuration.md). Defaults expect ClickHouse at `127.0.0.1:9000` with user `default` and an empty password — that is **not** the Compose user. Align `RASAT_CLICKHOUSE_*` with the server.
-
-The process reads the environment, not a config file.
+A laptop Compose file that also starts ClickHouse is in [Getting started](getting-started.md#quick-stack-optional). Use it only if you want that convenience stack.
 
 ## Health
 
@@ -63,7 +63,7 @@ The process reads the environment, not a config file.
 |---|---|
 | `GET /health` | Process is serving. Use as **liveness**. |
 | `GET /ready` | ClickHouse ping within the ping timeout. Use as **readiness**. **200** or **503**. |
-| `GET /version` | Git-stamped version and commit. See [Changelog](changelog.md). |
+| `GET /version` | Image tag or git describe. See [Changelog](changelog.md). |
 
 Logs are structured. In containers they are JSON (`RASAT_LOG_FORMAT`). SIGINT and SIGTERM drain in-flight HTTP for `RASAT_SHUTDOWN_TIMEOUT` (default 15 seconds).
 
@@ -71,7 +71,7 @@ Logs are structured. In containers they are JSON (`RASAT_LOG_FORMAT`). SIGINT an
 
 All traces, events, links, and logs live in ClickHouse. Disk growth is a ClickHouse problem: size volumes, and apply TTL or merges there if you need expiry. Rasat does not run a retention job in this version.
 
-Losing the ClickHouse volume loses history. Back up ClickHouse if the data matters.
+Losing ClickHouse loses history. Back it up if the data matters.
 
 ## Capacity notes
 
@@ -95,4 +95,4 @@ Do not cache the UI as a substitute for rebuilding the image when you upgrade.
 
 ## Kubernetes
 
-A Kubernetes install is **not** shipped in this version. Compose is the documented path. If you run Rasat on a cluster yourself, keep **replicas at 1** until a shared live hub exists, and use `/health` and `/ready` as probes.
+No chart, operator, or Helm release in this version. Run the image, point `RASAT_CLICKHOUSE_*` at ClickHouse you already run in the cluster, keep **replicas at 1** until a shared live hub exists, and use `/health` and `/ready` as probes.

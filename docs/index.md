@@ -40,7 +40,8 @@ Logs use a structured JSON API today, optionally correlated by trace id.
 
 | | |
 |---|---|
-| [Getting started](getting-started.md) | Run Rasat and send the first traces |
+| [Getting started](getting-started.md) | Point Rasat at ClickHouse and send traces |
+| [Compatibility](compatibility.md) | ClickHouse, OTLP, OS, Docker — what we support |
 | [Concepts](concepts.md) | Traces, logs, derived metrics, live data, time windows |
 | [Send data](send-data.md) | OpenTelemetry SDKs, Collector, structured logs |
 | [Overview](overview.md) | Fleet KPIs, charts, activity, issues |

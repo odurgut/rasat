@@ -1,0 +1,11 @@
+# From-source override. Usage:
+#   make compose-build
+services:
+  rasat:
+    image: rasat:dev
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        VERSION: ${VERSION:-dev}
+        COMMIT: ${COMMIT:-none}

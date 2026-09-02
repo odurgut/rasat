@@ -1,22 +1,37 @@
+<p align="center">
+  <img src="docs/images/logo.svg" width="88" height="16" alt="Rasat">
+</p>
+
 # Rasat
 
-Self-hosted observability for **OpenTelemetry traces**, structured **logs**, and a **service map**. One process serves the UI, ingest, and query. ClickHouse stores the data.
+[![CI](https://github.com/odurgut/rasat/actions/workflows/ci.yml/badge.svg)](https://github.com/odurgut/rasat/actions/workflows/ci.yml)
+[![Go](https://img.shields.io/github/go-mod/go-version/odurgut/rasat)](go.mod)
+[![Docker](https://img.shields.io/docker/v/odurgut/rasat/latest?label=docker)](https://hub.docker.com/r/odurgut/rasat)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 
-**Website and docs:** [https://rasat.dev](https://rasat.dev) · this tree: [docs/](docs/index.md)
+Self-hosted observability for **OpenTelemetry traces**, structured **logs**, and a **service map**. One process serves the UI, ingest, and query. **Your ClickHouse** stores the data.
+
+**Website and docs:** [https://rasat.dev](https://rasat.dev) · [docs/](docs/index.md) · [compatibility](docs/compatibility.md)
 
 This version has **no login**. Anyone who can reach the HTTP port can query and ingest. Bind it to a network you trust. What is missing: [Current limits](docs/limits.md).
 
 ## Run
 
-Docker is required. From a checkout:
+The image is [`odurgut/rasat`](https://hub.docker.com/r/odurgut/rasat). Point it at ClickHouse you run (native protocol, port 9000):
 
 ```bash
-make compose-up
+docker run -d --name rasat \
+  -p 8080:8080 -p 4317:4317 \
+  -e RASAT_CLICKHOUSE_ADDR=host.docker.internal:9000 \
+  -e RASAT_CLICKHOUSE_DATABASE=rasat \
+  -e RASAT_CLICKHOUSE_USER=rasat \
+  -e RASAT_CLICKHOUSE_PASSWORD=rasat \
+  odurgut/rasat:0.1.0
 ```
 
-Wait until `http://localhost:8080/ready` returns **200**. UI: `http://localhost:8080`. OTLP/HTTP is the same port; OTLP/gRPC is `localhost:4317`.
+Open `http://localhost:8080` when `http://localhost:8080/ready` is **200**. OTLP/HTTP is that port; OTLP/gRPC is `localhost:4317`.
 
-Full walkthrough: [Getting started](docs/getting-started.md). Deploy notes: [Self-hosting](docs/self-hosting.md).
+Walkthrough (including a throwaway ClickHouse and an optional Compose stack): [Getting started](docs/getting-started.md). How you run ClickHouse, health, and scale: [Self-hosting](docs/self-hosting.md). Variables: [Configuration](docs/configuration.md).
 
 ## Send traces
 

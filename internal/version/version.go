@@ -6,6 +6,8 @@
 package version
 
 var (
+	// Version is git describe (or "dev" when ldflags are omitted).
 	Version = "dev"
-	Commit  = "none"
+	// Commit is the short SHA (or "none").
+	Commit = "none"
 )

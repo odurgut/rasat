@@ -5,7 +5,7 @@ description: Export OpenTelemetry traces and structured logs to Rasat.
 
 # Send data
 
-Rasat does not ship a language-specific agent. If a library can export **OTLP**, it can send traces here.
+Rasat does not ship a language-specific agent. If a library can export **OTLP traces**, it can send them here. Protocol and Collector floors: [Compatibility](compatibility.md).
 
 ## Traces: OTLP/HTTP
 
@@ -68,7 +68,7 @@ exporters:
     endpoint: http://rasat:8080
 ```
 
-Replace `rasat` with a hostname the Collector can resolve. From a laptop toward Compose on localhost, use `127.0.0.1` and published ports.
+Replace `rasat` with a hostname the Collector can resolve. From a laptop toward Rasat on localhost, use `127.0.0.1` and published ports.
 
 TLS is not terminated by Rasat in this version. Put a proxy in front if you need HTTPS, or keep Collector → Rasat on a private network.
 

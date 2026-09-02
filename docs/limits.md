@@ -23,13 +23,13 @@ Overview issues and regressions are **on-screen triage**. There are no alert rul
 
 ## Ingest
 
-- **Traces:** OTLP/HTTP and OTLP/gRPC.
+- **Traces:** OTLP/HTTP and OTLP/gRPC. Versions: [Compatibility](compatibility.md).
 - **Logs:** JSON `POST /api/logs` only. No OTLP logs, no file tail, no syslog.
 - **Metrics:** Not ingested. Dashboards aggregate **spans**.
 
 ## Deployment
 
-The documented install is **Docker Compose** (or a binary plus ClickHouse). There is no official Kubernetes chart, operator, or Helm release.
+The documented install is the **Rasat process** (image or binary) pointed at **ClickHouse you run**. There is no official Kubernetes chart, operator, or Helm release.
 
 The live UI stream lives **inside one Rasat process**. Do not scale Rasat replicas expecting a shared live feed. Ingest and historical search can still work with more than one replica; live overview / traces / logs will not.
 

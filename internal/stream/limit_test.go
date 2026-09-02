@@ -19,8 +19,11 @@ func TestRateLimitCapsPerSecond(t *testing.T) {
 	t.Parallel()
 	now := time.Date(2026, 8, 31, 12, 0, 0, 0, time.UTC)
 	r := &RateLimit{n: 2, now: func() time.Time { return now }}
-	if !r.Allow() || !r.Allow() {
-		t.Fatal("first two should allow")
+	if !r.Allow() {
+		t.Fatal("first should allow")
+	}
+	if !r.Allow() {
+		t.Fatal("second should allow")
 	}
 	if r.Allow() {
 		t.Fatal("third should deny")

@@ -2,8 +2,15 @@ name: ci
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   go:

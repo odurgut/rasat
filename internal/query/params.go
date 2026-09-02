@@ -156,7 +156,7 @@ const maxTraceIDHex = 32
 func ParseGet(id string, q url.Values, maxWindow time.Duration, now time.Time) (store.TraceGet, error) {
 	id, err := parseHexTraceID(id)
 	if err != nil {
-		return store.TraceGet{}, fmt.Errorf("%w: %s", ErrInvalid, err)
+		return store.TraceGet{}, fmt.Errorf("%w: %w", ErrInvalid, err)
 	}
 	start, end, err := parseWindowBounds(q, maxWindow, now)
 	if err != nil {
@@ -211,7 +211,7 @@ func ParseServiceMap(q url.Values, maxWindow time.Duration, now time.Time) (stor
 	if err != nil {
 		return store.ServiceMapQuery{}, err
 	}
-	return store.ServiceMapQuery{Start: list.Start, End: list.End, Limit: list.Limit}, nil
+	return store.ServiceMapQuery(list), nil
 }
 
 // ParseMetrics reads GET /api/metrics. Same bounds as GET /api/services:

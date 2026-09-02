@@ -28,13 +28,7 @@ services:
     restart: unless-stopped
 
   rasat:
-    build:
-      context: ..
-      dockerfile: deploy/Dockerfile
-      args:
-        # `make compose-up` sets these from git describe. Bare compose stays `dev`.
-        VERSION: ${VERSION:-dev}
-        COMMIT: ${COMMIT:-none}
+    image: odurgut/rasat:0.1.0
     ports:
       - "8080:8080"
       - "4317:4317"

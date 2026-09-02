@@ -1,45 +1,117 @@
 ---
 title: Getting started
-description: Run Rasat, open the UI, and send OpenTelemetry traces from your application.
+description: Run Rasat against ClickHouse, open the UI, and send OpenTelemetry traces.
 ---
 
 # Getting started
 
-This walkthrough gets you from nothing to **traces on the screen**. It assumes Docker is available. For other layouts, see [Self-hosting](self-hosting.md).
+Rasat is **one process** (image or binary). It reads and writes **your ClickHouse**. We do not ship, host, or operate ClickHouse — point Rasat at a server you already run, or start one yourself. Versions: [Compatibility](compatibility.md). Ports, replicas, proxies: [Self-hosting](self-hosting.md). Every knob: [Configuration](configuration.md).
 
-## What you will have
-
-Two containers:
-
-1. **ClickHouse** — stores spans, events, links, and logs.
-2. **Rasat** — receives telemetry, queries storage, and serves the UI.
-
-The UI, OTLP/HTTP, the query API, and live WebSockets share one HTTP port. OTLP/gRPC uses a second port.
+This version has **no login**. Anyone who can reach the HTTP port can query and ingest.
 
 | Address | Role |
 |---|---|
-| `http://localhost:8080` | UI and HTTP APIs |
+| `http://localhost:8080` | UI, OTLP/HTTP, query API |
 | `localhost:4317` | OTLP/gRPC |
 
-## Start Rasat
+## ClickHouse
 
-Use the Compose file published with Rasat (`deploy/docker-compose.yml`). From a checkout of the project:
+Native protocol on **9000**. Rasat creates its schema in `RASAT_CLICKHOUSE_DATABASE` on startup. Use a user that can do that. **24.8** is what we support.
+
+If you already have ClickHouse, skip to [Run Rasat](#run-rasat) and set `RASAT_CLICKHOUSE_*` to that server.
+
+If you need a throwaway instance for this walkthrough:
 
 ```bash
-make compose-up
+docker run -d --name clickhouse \
+  --ulimit nofile=262144:262144 \
+  -p 9000:9000 \
+  -e CLICKHOUSE_DB=rasat \
+  -e CLICKHOUSE_USER=rasat \
+  -e CLICKHOUSE_PASSWORD=rasat \
+  -e CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1 \
+  clickhouse/clickhouse-server:24.8
 ```
 
-That is Compose plus a git-stamped binary. `GET /version` and the UI rail show `git describe`. Plain `docker compose -f deploy/docker-compose.yml up --build` without `VERSION` / `COMMIT` reports `dev`.
+That is the official ClickHouse image, not Rasat. Run ClickHouse however you prefer (package, VM, existing cluster) as long as native 9000 is reachable.
 
-Wait until Rasat is ready. `http://localhost:8080/ready` returns **200** when ClickHouse accepts connections. The UI is `http://localhost:8080`.
+## Run Rasat
 
-If ClickHouse was previously started with different credentials, remove the old volume once (`docker compose -f deploy/docker-compose.yml down -v`) and start again. The published Compose file uses a dedicated ClickHouse user for Rasat.
+Image: [`odurgut/rasat`](https://hub.docker.com/r/odurgut/rasat). Match user, password, database, and address to **your** ClickHouse.
+
+```bash
+docker run -d --name rasat \
+  -p 8080:8080 -p 4317:4317 \
+  -e RASAT_CLICKHOUSE_ADDR=host.docker.internal:9000 \
+  -e RASAT_CLICKHOUSE_DATABASE=rasat \
+  -e RASAT_CLICKHOUSE_USER=rasat \
+  -e RASAT_CLICKHOUSE_PASSWORD=rasat \
+  odurgut/rasat:0.1.0
+```
+
+On Linux, add `--add-host=host.docker.internal:host-gateway` if the ClickHouse port is on the host. If both containers share a Docker network, use the ClickHouse service hostname instead of `host.docker.internal`. Same variables on a host binary (`make build` then `bin/rasat`).
+
+Open `http://localhost:8080`. `http://localhost:8080/ready` returns **200** when ClickHouse accepts connections.
+
+## Quick stack (optional)
+
+Compose that starts ClickHouse **and** Rasat is a convenience for a laptop, not the product. Skip it if you already run ClickHouse.
+
+```yaml
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    environment:
+      CLICKHOUSE_DB: rasat
+      CLICKHOUSE_USER: rasat
+      CLICKHOUSE_PASSWORD: rasat
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "clickhouse-client --user rasat --password rasat --query 'SELECT 1'",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 20s
+
+  rasat:
+    image: odurgut/rasat:0.1.0
+    ports:
+      - "8080:8080"
+      - "4317:4317"
+    environment:
+      RASAT_CLICKHOUSE_ADDR: clickhouse:9000
+      RASAT_CLICKHOUSE_DATABASE: rasat
+      RASAT_CLICKHOUSE_USER: rasat
+      RASAT_CLICKHOUSE_PASSWORD: rasat
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+
+volumes:
+  clickhouse-data:
+```
+
+```bash
+docker compose up -d
+```
+
+Default passwords in these examples are for a **private** machine. Change them before this is on a network you do not trust.
 
 ## Open the product
 
-In the browser you should see a left rail: **overview**, **traces**, **services**, **logs**, **map**. Overview is empty until traces arrive. That is expected.
+Left rail: **overview**, **traces**, **services**, **logs**, **map**. Overview is empty until traces arrive. That is expected.
 
-No application yet: [demo data](demo-and-load.md) posts synthetic OTLP at the same endpoint (`make seed`). Dark and light themes are in the rail footer. The preference stays in the browser.
+No application yet: [demo data](demo-and-load.md) posts synthetic OTLP at the same endpoint. Dark and light themes are in the rail footer. The preference stays in the browser.
 
 ## Send traces from an application
 
@@ -59,7 +131,7 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4317
 export OTEL_EXPORTER_OTLP_PROTOCOL=grpc
 ```
 
-If the process runs in another container on the same Compose network, use the Rasat service hostname (`rasat:4317` or `http://rasat:8080`), not `127.0.0.1`.
+If the app is another container, use a hostname it can resolve (`http://rasat:8080` or `rasat:4317`), not `127.0.0.1`.
 
 Restart the app (or Collector) so the exporter picks up the endpoint. Generate traffic. On **overview**, KPIs and the activity feed should start moving. On **traces**, search the last hour and open a row.
 
@@ -70,7 +142,7 @@ A full Collector example and log ingest are in [Send data](send-data.md).
 ```bash
 curl -sS http://127.0.0.1:8080/health    # process is up
 curl -sS http://127.0.0.1:8080/ready     # storage is reachable
-curl -sS http://127.0.0.1:8080/version   # git-stamped build
+curl -sS http://127.0.0.1:8080/version   # image tag
 ```
 
 `/health` does not talk to ClickHouse. Use `/ready` in orchestration so you do not send OTLP at a process that cannot write.
@@ -80,4 +152,4 @@ curl -sS http://127.0.0.1:8080/version   # git-stamped build
 - [Concepts](concepts.md) — what a trace, a log line, and a derived metric mean in Rasat
 - [Overview](overview.md) — how to read the landing page
 - [Traces](traces.md) — search and waterfall
-- [Self-hosting](self-hosting.md) — running this beyond a laptop
+- [Self-hosting](self-hosting.md) — ClickHouse you operate, health, scale

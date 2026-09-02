@@ -5,7 +5,7 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 COMMIT ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo none)
 LDFLAGS := -s -w -X $(MODULE)/internal/version.Version=$(VERSION) -X $(MODULE)/internal/version.Commit=$(COMMIT)
 
-.PHONY: fmt fmt-check test vet lint build web run seed seed-live bench compose-up compose-down ci version
+.PHONY: fmt fmt-check test vet lint build web run seed seed-live bench compose-up compose-build compose-down ci version
 
 fmt:
 	gofmt -w cmd internal
@@ -41,7 +41,10 @@ version:
 	@echo $(VERSION) $(COMMIT)
 
 compose-up:
-	VERSION="$(VERSION)" COMMIT="$(COMMIT)" docker compose -f deploy/docker-compose.yml up --build
+	docker compose -f deploy/docker-compose.yml up -d
+
+compose-build:
+	VERSION="$(VERSION)" COMMIT="$(COMMIT)" docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.build.yml up --build -d
 
 compose-down:
 	docker compose -f deploy/docker-compose.yml down

@@ -14,7 +14,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 COPY --from=web /src/internal/ui/dist ./internal/ui/dist
-# Pass from the host (`make compose-up`). .git is not in the image context.
+# Pass from the host (`make compose-build`) or the release workflow. .git is not in the image context.
 ARG VERSION=dev
 ARG COMMIT=none
 RUN CGO_ENABLED=0 GOOS=linux go build \
