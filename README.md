@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="docs/images/logo.svg#gh-light-mode-only" width="60" height="26" alt="Rasat">
-  <img src="docs/images/logo-dark.svg#gh-dark-mode-only" width="60" height="26" alt="Rasat">
+  <img src="docs/images/logo.svg#gh-light-mode-only" width="150" height="65" alt="Rasat">
+  <img src="docs/images/logo-dark.svg#gh-dark-mode-only" width="150" height="65" alt="Rasat">
 </p>
 
 # Rasat
