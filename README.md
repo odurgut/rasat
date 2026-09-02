@@ -1,5 +1,6 @@
 <p align="center">
-  <img src="docs/images/logo.svg" width="88" height="16" alt="Rasat">
+  <img src="docs/images/logo.svg#gh-light-mode-only" width="60" height="26" alt="Rasat">
+  <img src="docs/images/logo-dark.svg#gh-dark-mode-only" width="60" height="26" alt="Rasat">
 </p>
 
 # Rasat
@@ -41,6 +42,10 @@ export OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
 ```
 
 [Send data](docs/send-data.md) covers gRPC, the Collector, and logs. No Rasat agent.
+
+## Contribute
+
+[CONTRIBUTING.md](CONTRIBUTING.md): `main` only, semver tags, CI, and how a release reaches Docker Hub.
 
 ## License
 
