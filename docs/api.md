@@ -303,6 +303,7 @@ One trace: span tree, attributes, events, links, critical path, bottlenecks.
       "operation": "HTTP POST /pay",
       "kind": 2,
       "duration_ns": 412000000,
+      "start_offset_ns": 0,
       "status_code": 2,
       "status_message": "",
       "scope_name": "",

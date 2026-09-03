@@ -13,7 +13,7 @@ The query HTTP API is not versioned separately. Breaking changes are listed here
 
 ## Unreleased
 
-Nothing waiting for the next tag.
+- `GET /api/traces/{id}` span objects include `start_offset_ns` (nanoseconds from the trace start) so the waterfall does not depend on JSON timestamp precision.
 
 ## 0.1.0
 

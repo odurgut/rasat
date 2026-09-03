@@ -34,8 +34,8 @@ export function layoutWaterfall(detail: TraceDetail): LaidSpan[] {
     list.sort(compareSpans);
   }
 
-  const t0 = Date.parse(detail.timestamp);
   const tDur = Math.max(detail.duration_ns, 1);
+  const originNs = parseTimeNs(detail.timestamp);
   const out: LaidSpan[] = [];
   const seen = new Set<string>();
 
@@ -45,7 +45,7 @@ export function layoutWaterfall(detail: TraceDetail): LaidSpan[] {
     }
     seen.add(s.span_id);
     const kids = children.get(s.span_id) ?? [];
-    out.push(layoutOne(s, depth, t0, tDur, kids, isLast, ancestorLast));
+    out.push(layoutOne(s, depth, originNs, tDur, kids, isLast, ancestorLast));
     const nextAnc = [...ancestorLast, isLast];
     for (let i = 0; i < kids.length; i++) {
       const c = kids[i];
@@ -82,17 +82,14 @@ export function layoutWaterfall(detail: TraceDetail): LaidSpan[] {
 function layoutOne(
   s: SpanDetail,
   depth: number,
-  t0: number,
+  originNs: number | null,
   tDur: number,
   kids: SpanDetail[],
   isLast: boolean,
   ancestorLast: boolean[],
 ): LaidSpan {
-  const start = Date.parse(s.timestamp);
-  let offsetPct = 0;
-  if (!Number.isNaN(t0) && !Number.isNaN(start)) {
-    offsetPct = (((start - t0) * 1_000_000) / tDur) * 100;
-  }
+  const offNs = spanOffsetNs(s, originNs);
+  let offsetPct = (offNs / tDur) * 100;
   let widthPct = (s.duration_ns / tDur) * 100;
   offsetPct = clamp(offsetPct, 0, 99.6);
   widthPct = clamp(widthPct, 0.4, 100 - offsetPct);
@@ -115,12 +112,44 @@ function layoutOne(
 }
 
 function compareSpans(a: SpanDetail, b: SpanDetail): number {
-  const ta = Date.parse(a.timestamp);
-  const tb = Date.parse(b.timestamp);
+  const off = spanOffsetNs(a, null) - spanOffsetNs(b, null);
+  if (off !== 0) {
+    return off;
+  }
+  const ta = parseTimeNs(a.timestamp) ?? 0;
+  const tb = parseTimeNs(b.timestamp) ?? 0;
   if (ta !== tb) {
     return ta - tb;
   }
   return a.span_id.localeCompare(b.span_id);
+}
+
+/** Epoch nanoseconds. Fractional RFC3339 is not left to Date.parse (ms only). */
+export function parseTimeNs(iso: string): number | null {
+  const s = iso.trim();
+  const m = s.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d+))?(Z|[+-]\d{2}:?\d{2})$/);
+  if (!m || m[1] === undefined || m[3] === undefined) {
+    const ms = Date.parse(s);
+    return Number.isFinite(ms) ? ms * 1_000_000 : null;
+  }
+  const ms = Date.parse(`${m[1]}${m[3]}`);
+  if (!Number.isFinite(ms)) {
+    return null;
+  }
+  const frac = (m[2] ?? "").padEnd(9, "0").slice(0, 9);
+  const nano = Number.parseInt(frac, 10);
+  return ms * 1_000_000 + (Number.isFinite(nano) ? nano : 0);
+}
+
+function spanOffsetNs(s: SpanDetail, originNs: number | null): number {
+  if (typeof s.start_offset_ns === "number" && Number.isFinite(s.start_offset_ns) && s.start_offset_ns >= 0) {
+    return s.start_offset_ns;
+  }
+  const start = parseTimeNs(s.timestamp);
+  if (start === null || originNs === null) {
+    return 0;
+  }
+  return Math.max(0, start - originNs);
 }
 
 function clamp(n: number, lo: number, hi: number): number {

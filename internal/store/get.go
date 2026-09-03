@@ -41,6 +41,7 @@ type SpanDetail struct {
 	Operation          string            `json:"operation"`
 	Kind               int32             `json:"kind"`
 	DurationNs         uint64            `json:"duration_ns"`
+	StartOffsetNs      uint64            `json:"start_offset_ns"`
 	StatusCode         uint8             `json:"status_code"`
 	StatusMessage      string            `json:"status_message"`
 	ScopeName          string            `json:"scope_name"`
@@ -248,6 +249,13 @@ func assembleTrace(traceID string, spans []spanScan, events []eventScan, links [
 	dur := uint64(0)
 	if maxEnd.After(minTs) {
 		dur = uint64(maxEnd.Sub(minTs))
+	}
+	for i := range out {
+		d := out[i].Timestamp.Sub(minTs)
+		if d < 0 {
+			d = 0
+		}
+		out[i].StartOffsetNs = uint64(d)
 	}
 	d := &TraceDetail{
 		TraceID:    traceID,

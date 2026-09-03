@@ -30,6 +30,8 @@ export type SpanDetail = {
   operation: string;
   kind: number;
   duration_ns: number;
+  /** Nanoseconds from the trace start. Preferred for waterfall placement. */
+  start_offset_ns?: number;
   status_code: number;
   status_message: string;
   scope_name: string;

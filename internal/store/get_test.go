@@ -112,6 +112,9 @@ func TestGetTraceAssemblesTree(t *testing.T) {
 	if got.Spans[0].SpanID != "01" || got.Spans[1].ParentSpanID != "01" {
 		t.Fatalf("order %+v", got.Spans)
 	}
+	if got.Spans[0].StartOffsetNs != 0 || got.Spans[1].StartOffsetNs != uint64(2*time.Millisecond) {
+		t.Fatalf("offsets %d %d", got.Spans[0].StartOffsetNs, got.Spans[1].StartOffsetNs)
+	}
 	if got.Spans[0].ResourceAttributes == nil || got.Spans[1].Events[0].Name != "exception" {
 		t.Fatalf("children %+v", got.Spans)
 	}
