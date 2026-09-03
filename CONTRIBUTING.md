@@ -61,6 +61,7 @@ To run this tree locally: `make compose-build` (image from the checkout + ClickH
 |---|---|---|
 | [ci.yml](.github/workflows/ci.yml) | PR and every push to `main` | `gofmt`, `go test -race`, `go vet`, golangci-lint **v2.12.2**, `make build`, `rasat-bench`, UI `npm run build`. Go **1.24.x**, Node **22**. |
 | [release.yml](.github/workflows/release.yml) | Tag `vX.Y.Z` | The same Go/UI checks, then multi-arch image to Docker Hub, then a GitHub Release. After Hub, a best-effort `workflow_dispatch` rebuilds [demo.rasat.dev](https://demo.rasat.dev) from that tag (`continue-on-error`). |
+| [dispatch-demo.yml](.github/workflows/dispatch-demo.yml) | Manual | Same demo trigger as a tag, no image. Use when the overlay changed and Hub did not. |
 | [hub-readme.yml](.github/workflows/hub-readme.yml) | `main` changes to `deploy/docker-hub.md` (or manual) | Hub short description + Overview. Does **not** build an image. |
 
 `main` never publishes `latest`. Images exist only from tags.
