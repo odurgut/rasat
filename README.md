@@ -27,7 +27,7 @@ docker run -d --name rasat \
   -e RASAT_CLICKHOUSE_DATABASE=rasat \
   -e RASAT_CLICKHOUSE_USER=rasat \
   -e RASAT_CLICKHOUSE_PASSWORD=rasat \
-  odurgut/rasat:0.1.0
+  odurgut/rasat:0.1.1
 ```
 
 Open `http://localhost:8080` when `http://localhost:8080/ready` is **200**. OTLP/HTTP is that port; OTLP/gRPC is `localhost:4317`.

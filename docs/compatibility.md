@@ -50,7 +50,7 @@ Decode is `go.opentelemetry.io/collector/pdata` v1.36.0. Bad protobuf/JSON is HT
 | | |
 |---|---|
 | **Build** | Go **1.24.x**, Node **22** (UI from this tree). |
-| **Image** | Linux static binary, non-root. Docker Hub `odurgut/rasat` (`0.1.0`, `0.1`, `latest` from the git tag — not from `main`). `linux/amd64` and `linux/arm64`. |
+| **Image** | Linux static binary, non-root. Docker Hub `odurgut/rasat` (`0.1.1`, `0.1`, `latest` from the git tag — not from `main`). `linux/amd64` and `linux/arm64`. |
 | **Arch** | Published image: both architectures. From-source image build: the machine you build on. |
 | **Host binary** | `make build` on Linux or macOS + Go 1.24. Windows: Docker or WSL. |
 | **Docker** | Engine. Compose V2 is optional (laptop convenience stack only). |

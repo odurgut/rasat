@@ -7,13 +7,19 @@ description: What changed in each Rasat release.
 
 Product version is a git tag: `vMAJOR.MINOR.PATCH`. The running process reports it on [`GET /version`](api.md) and in the UI rail. How tags, `main`, and Hub images relate: [CONTRIBUTING.md](../CONTRIBUTING.md).
 
-`make build` and `make compose-build` stamp `git describe --tags --always --dirty` and the short commit into the binary. Hub images get the git tag (`v0.1.0`) from the release workflow. Builds that skip those flags (plain `go build`, Compose without `VERSION`) report `dev` / `none`.
+`make build` and `make compose-build` stamp `git describe --tags --always --dirty` and the short commit into the binary. Hub images get the git tag (`v0.1.1`) from the release workflow. Builds that skip those flags (plain `go build`, Compose without `VERSION`) report `dev` / `none`.
 
 The query HTTP API is not versioned separately. Breaking changes are listed here.
 
 ## Unreleased
 
+Nothing waiting for the next tag.
+
+## 0.1.1
+
 - `GET /api/traces/{id}` span objects include `start_offset_ns` (nanoseconds from the trace start) so the waterfall does not depend on JSON timestamp precision.
+- Local Compose keeps the ClickHouse volume across `make compose-build`, so the UI is not empty after a rebuild.
+- GitHub and Hub wordmarks are larger; the SVG is still site scale.
 
 ## 0.1.0
 

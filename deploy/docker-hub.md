@@ -23,7 +23,7 @@ docker run -d --name rasat \
   -e RASAT_CLICKHOUSE_DATABASE=rasat \
   -e RASAT_CLICKHOUSE_USER=rasat \
   -e RASAT_CLICKHOUSE_PASSWORD=rasat \
-  odurgut/rasat:0.1.0
+  odurgut/rasat:0.1.1
 ```
 
 On Linux, add `--add-host=host.docker.internal:host-gateway` if ClickHouse is on the host. Wait until `http://localhost:8080/ready` returns **200**. UI: `http://localhost:8080`.
@@ -58,7 +58,7 @@ Published from git tags `vMAJOR.MINOR.PATCH` (not from `main`):
 
 | Tag | Meaning |
 |---|---|
-| `0.1.0` | This release |
+| `0.1.1` | This release |
 | `0.1` | Latest `0.1.x` |
 | `latest` | Latest tagged release |
 

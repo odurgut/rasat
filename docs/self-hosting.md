@@ -45,7 +45,7 @@ docker run -d --name rasat \
   -e RASAT_CLICKHOUSE_DATABASE=rasat \
   -e RASAT_CLICKHOUSE_USER=rasat \
   -e RASAT_CLICKHOUSE_PASSWORD=rasat \
-  odurgut/rasat:0.1.0
+  odurgut/rasat:0.1.1
 ```
 
 Same variables in systemd, Kubernetes, or a shell. This version has **no authentication**; anyone who can reach port 8080 can query and ingest. Bind it to a network you trust.
