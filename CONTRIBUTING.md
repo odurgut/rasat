@@ -99,6 +99,22 @@ Keep the change focused. One concern per PR.
 
 Do not sneak in auth, Kubernetes, tenants, alerting, OTLP logs/metrics, or a second registry.
 
-Commit messages say **why**, in a complete sentence. Conventional-commit prefixes are not required.
+## Commit messages
+
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). The description is why the change exists, in a complete sentence (or a fragment that reads as one) — not a file list.
+
+```
+type: why this change exists
+```
+
+Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`, `perf`. Scope is optional (`fix(ui): …`). A breaking change uses `BREAKING CHANGE:` in the footer, or `feat!:`. While major is **0**, a breaking change is still a MINOR bump — see Versioning.
+
+Examples:
+
+```
+feat: jump to a service from the waterfall legend
+fix: keep the 7d overview query from aborting the 15s window
+docs: pin the getting-started image to 0.1.0
+```
 
 By opening a pull request you license your contribution under Apache License 2.0.
