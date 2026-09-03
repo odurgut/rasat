@@ -97,3 +97,22 @@ jobs:
       - uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true
+
+  # Overwrite demo.rasat.dev from the same tag. Must not fail Hub.
+  dispatch-demo:
+    needs: docker
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Trigger odurgut/rasat-demo
+        env:
+          GH_TOKEN: ${{ secrets.DEMO_DISPATCH_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "DEMO_DISPATCH_TOKEN unset; skip demo.rasat.dev"
+            exit 0
+          fi
+          gh api --method POST repos/odurgut/rasat-demo/dispatches \
+            -f event_type=rasat-release \
+            -F "client_payload[tag]=${TAG}"

@@ -60,7 +60,7 @@ To run this tree locally: `make compose-build` (image from the checkout + ClickH
 | Workflow | When | What |
 |---|---|---|
 | [ci.yml](.github/workflows/ci.yml) | PR and every push to `main` | `gofmt`, `go test -race`, `go vet`, golangci-lint **v2.12.2**, `make build`, `rasat-bench`, UI `npm run build`. Go **1.24.x**, Node **22**. |
-| [release.yml](.github/workflows/release.yml) | Tag `vX.Y.Z` | The same Go/UI checks, then multi-arch image to Docker Hub, then a GitHub Release. |
+| [release.yml](.github/workflows/release.yml) | Tag `vX.Y.Z` | The same Go/UI checks, then multi-arch image to Docker Hub, then a GitHub Release. After Hub, a best-effort `repository_dispatch` rebuilds [demo.rasat.dev](https://demo.rasat.dev) from that tag (`continue-on-error`). |
 | [hub-readme.yml](.github/workflows/hub-readme.yml) | `main` changes to `deploy/docker-hub.md` (or manual) | Hub short description + Overview. Does **not** build an image. |
 
 `main` never publishes `latest`. Images exist only from tags.
@@ -78,7 +78,7 @@ git tag v0.1.1
 git push origin v0.1.1
 ```
 
-That tag builds `odurgut/rasat:0.1.1`, `:0.1`, and `:latest` (`linux/amd64`, `linux/arm64`) and opens the GitHub Release.
+That tag builds `odurgut/rasat:0.1.1`, `:0.1`, and `:latest` (`linux/amd64`, `linux/arm64`) and opens the GitHub Release. The same tag dispatches [odurgut/rasat-demo](https://github.com/odurgut/rasat-demo) so the hosted cassette matches the image. A failed Worker must not fail Hub.
 
 In the same PR that you are about to tag (or immediately after):
 
@@ -87,6 +87,8 @@ In the same PR that you are about to tag (or immediately after):
 3. Pin install snippets and Hub examples to the new patch when you intend people to pull it (`odurgut/rasat:0.1.1`).
 
 Hub credentials are the GitHub Environment **`DOCKERHUB`**. Overview updates need a Hub PAT with **Read, Write, and Delete**. Image push is not enough.
+
+Demo dispatch uses repo secret **`DEMO_DISPATCH_TOKEN`**: a fine-grained PAT limited to `odurgut/rasat-demo`, permission **Contents: Read and write**. If it is missing, Hub still ships.
 
 ## Code
 
