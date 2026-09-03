@@ -4,7 +4,7 @@ import { LogFilterFields } from "./LogFilter";
 import { LogList, levelClass, logRowKey } from "./LogList";
 import { defaultLogForm, type LogForm } from "./query";
 import { formatTimestamp } from "./format";
-import { isLiveTail, isListAtTop, flushPendingLogs, parseStreamLog, prependLiveLog, logMatchesForm, logsStreamURL } from "./live";
+import { isLiveTail, isListAtTop, flushPendingLogs, listenLogStream, prependLiveLog, logMatchesForm } from "./live";
 import { GhostButton } from "../chrome/GhostButton";
 import { PrimaryButton } from "../chrome/PrimaryButton";
 import { Workspace } from "../chrome/Workspace";
@@ -132,46 +132,15 @@ export function LogsView({ active = true, initialTraceID = "", onOpenTrace, onOp
   }, [active, initialTraceID]);
 
   useEffect(() => {
-    let closed = false;
-    let ws: WebSocket | null = null;
-    let retry: number | undefined;
-
-    const connect = () => {
-      if (closed) {
+    return listenLogStream((row) => {
+      if (statusRef.current === "error") {
         return;
       }
-      ws = new WebSocket(logsStreamURL());
-      ws.onmessage = (ev) => {
-        if (typeof ev.data !== "string") {
-          return;
-        }
-        const row = parseStreamLog(ev.data);
-        if (!row) {
-          return;
-        }
-        if (statusRef.current === "error") {
-          return;
-        }
-        if (!logMatchesForm(row, formRef.current, liveTailRef.current)) {
-          return;
-        }
-        ingestLiveRef.current(row);
-      };
-      ws.onclose = () => {
-        if (closed) {
-          return;
-        }
-        retry = window.setTimeout(connect, 2000);
-      };
-    };
-    connect();
-    return () => {
-      closed = true;
-      if (retry !== undefined) {
-        window.clearTimeout(retry);
+      if (!logMatchesForm(row, formRef.current, liveTailRef.current)) {
+        return;
       }
-      ws?.close();
-    };
+      ingestLiveRef.current(row);
+    });
   }, []);
 
   const enter = useRowEnter(

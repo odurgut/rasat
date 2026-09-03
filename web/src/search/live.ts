@@ -108,6 +108,51 @@ export function logsStreamURL(loc: Pick<Location, "protocol" | "host"> = window.
   return `${proto}//${loc.host}/api/stream/logs`;
 }
 
+function listenWebSocket<T>(url: string, parse: (raw: string) => T | null, onRow: (row: T) => void): () => void {
+  let closed = false;
+  let ws: WebSocket | null = null;
+  let retry: number | undefined;
+  const connect = () => {
+    if (closed) {
+      return;
+    }
+    ws = new WebSocket(url);
+    ws.onmessage = (ev) => {
+      if (typeof ev.data !== "string") {
+        return;
+      }
+      const row = parse(ev.data);
+      if (row) {
+        onRow(row);
+      }
+    };
+    ws.onclose = () => {
+      if (closed) {
+        return;
+      }
+      retry = window.setTimeout(connect, 2000);
+    };
+  };
+  connect();
+  return () => {
+    closed = true;
+    if (retry !== undefined) {
+      window.clearTimeout(retry);
+    }
+    ws?.close();
+  };
+}
+
+/** Live trace rows from the process WebSocket. */
+export function listenTraceStream(onRow: (row: TraceListRow) => void): () => void {
+  return listenWebSocket(tracesStreamURL(), parseStreamRow, onRow);
+}
+
+/** Live log rows from the process WebSocket. */
+export function listenLogStream(onRow: (row: LogRow) => void): () => void {
+  return listenWebSocket(logsStreamURL(), parseStreamLog, onRow);
+}
+
 export function parseStreamRow(raw: string): TraceListRow | null {
   try {
     const v = JSON.parse(raw) as TraceListRow;

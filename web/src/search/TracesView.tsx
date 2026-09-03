@@ -5,7 +5,7 @@ import { SpanInspector, InsightDock } from "./SpanInspector";
 import { TraceList } from "./TraceList";
 import { Waterfall, TraceBack } from "./Waterfall";
 import { formFromSearchParams, pageTraceID, writePageURL, defaultForm, type SearchForm } from "./query";
-import { isLiveTail, isListAtTop, flushPending, parseStreamRow, prependLiveRow, rowMatchesForm, tracesStreamURL } from "./live";
+import { isLiveTail, isListAtTop, flushPending, listenTraceStream, prependLiveRow, rowMatchesForm } from "./live";
 import { GhostButton } from "../chrome/GhostButton";
 import { Workspace } from "../chrome/Workspace";
 import { useRowEnter } from "./rowEnter";
@@ -177,47 +177,15 @@ export function TracesView({
   }, [active, reloadToken]);
 
   useEffect(() => {
-    let closed = false;
-    let ws: WebSocket | null = null;
-    let retry: number | undefined;
-
-    const connect = () => {
-      if (closed) {
+    return listenTraceStream((row) => {
+      if (statusRef.current === "error") {
         return;
       }
-      ws = new WebSocket(tracesStreamURL());
-      ws.onmessage = (ev) => {
-        if (typeof ev.data !== "string") {
-          return;
-        }
-        const row = parseStreamRow(ev.data);
-        if (!row) {
-          return;
-        }
-        if (statusRef.current === "error") {
-          return;
-        }
-        const current = formRef.current;
-        if (!rowMatchesForm(row, current, liveTailRef.current)) {
-          return;
-        }
-        ingestLiveRef.current(row);
-      };
-      ws.onclose = () => {
-        if (closed) {
-          return;
-        }
-        retry = window.setTimeout(connect, 2000);
-      };
-    };
-    connect();
-    return () => {
-      closed = true;
-      if (retry !== undefined) {
-        window.clearTimeout(retry);
+      if (!rowMatchesForm(row, formRef.current, liveTailRef.current)) {
+        return;
       }
-      ws?.close();
-    };
+      ingestLiveRef.current(row);
+    });
   }, []);
 
   const selected: SpanDetail | undefined = detail?.spans.find((s) => s.span_id === selectedID);

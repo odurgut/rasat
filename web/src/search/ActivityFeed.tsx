@@ -5,7 +5,7 @@ import { serviceRampIndex } from "./color";
 import { GhostButton } from "../chrome/GhostButton";
 import { Trunc } from "./trunc";
 import { activityKind, feedLimit } from "./activity";
-import { flushPending, isListAtTop, parseStreamRow, prependLiveRow, tracesStreamURL } from "./live";
+import { flushPending, isListAtTop, listenTraceStream, prependLiveRow } from "./live";
 import { useRowEnter } from "./rowEnter";
 
 type ActivityFeedProps = {
@@ -62,31 +62,7 @@ export function ActivityFeed({ start, end, rangeKey, slowNs, active, onOpen }: A
   useEffect(() => {
     let closed = false;
     const ac = new AbortController();
-    let ws: WebSocket | null = null;
-    let retry: number | undefined;
-
-    const connect = () => {
-      if (closed) {
-        return;
-      }
-      ws = new WebSocket(tracesStreamURL());
-      ws.onmessage = (ev) => {
-        if (typeof ev.data !== "string") {
-          return;
-        }
-        const row = parseStreamRow(ev.data);
-        if (!row) {
-          return;
-        }
-        ingestLiveRef.current(row);
-      };
-      ws.onclose = () => {
-        if (closed) {
-          return;
-        }
-        retry = window.setTimeout(connect, 2000);
-      };
-    };
+    let stopStream = (): void => undefined;
 
     void (async () => {
       try {
@@ -117,17 +93,14 @@ export function ActivityFeed({ start, end, rangeKey, slowNs, active, onOpen }: A
         }
       }
       if (!closed) {
-        connect();
+        stopStream = listenTraceStream((row) => ingestLiveRef.current(row));
       }
     })();
 
     return () => {
       closed = true;
       ac.abort();
-      if (retry !== undefined) {
-        window.clearTimeout(retry);
-      }
-      ws?.close();
+      stopStream();
     };
   }, [rangeKey]);
 
