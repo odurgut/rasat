@@ -113,6 +113,4 @@ jobs:
             echo "DEMO_DISPATCH_TOKEN unset; skip demo.rasat.dev"
             exit 0
           fi
-          gh api --method POST repos/odurgut/rasat-demo/dispatches \
-            -f event_type=rasat-release \
-            -F "client_payload[tag]=${TAG}"
+          gh workflow run deploy --repo odurgut/rasat-demo --ref main -f "tag=${TAG}"
