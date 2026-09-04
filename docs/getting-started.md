@@ -5,6 +5,8 @@ description: Run Rasat against ClickHouse, open the UI, and send OpenTelemetry t
 
 # Getting started
 
+Want the UI without installing anything? Open the hosted cassette at [demo.rasat.dev](https://demo.rasat.dev) — synthetic shop traces on a loop, not ingest.
+
 Rasat is **one process** (image or binary). It reads and writes **your ClickHouse**. We do not ship, host, or operate ClickHouse — point Rasat at a server you already run, or start one yourself. Versions: [Compatibility](compatibility.md). Ports, replicas, proxies: [Self-hosting](self-hosting.md). Every knob: [Configuration](configuration.md).
 
 This version has **no login**. Anyone who can reach the HTTP port can query and ingest.

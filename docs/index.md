@@ -41,6 +41,7 @@ Logs use a structured JSON API today, optionally correlated by trace id.
 | | |
 |---|---|
 | [Getting started](getting-started.md) | Point Rasat at ClickHouse and send traces |
+| [Hosted demo](https://demo.rasat.dev) | Cassette UI — synthetic shop, not ingest |
 | [Compatibility](compatibility.md) | ClickHouse, OTLP, OS, Docker — what we support |
 | [Concepts](concepts.md) | Traces, logs, derived metrics, live data, time windows |
 | [Send data](send-data.md) | OpenTelemetry SDKs, Collector, structured logs |
@@ -50,7 +51,7 @@ Logs use a structured JSON API today, optionally correlated by trace id.
 | [Logs](logs.md) | Live tail and correlation |
 | [Service map](service-map.md) | Dependencies from spans |
 | [Self-hosting](self-hosting.md) | Deploy, health, storage, scale |
-| [Demo data and load](demo-and-load.md) | `rasat-seed` and `rasat-bench` (not in the image) |
+| [Demo data and load](demo-and-load.md) | Hosted cassette, then `rasat-seed` / `rasat-bench` |
 | [Configuration](configuration.md) | Environment variables |
 | [HTTP API](api.md) | Query, ingest, and stream reference |
 | [Changelog](changelog.md) | Releases and `GET /version` |

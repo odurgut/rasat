@@ -5,6 +5,8 @@ description: Fill a local Rasat with synthetic traces, or measure ingest on your
 
 # Demo data and load
 
+To click through the UI without a laptop stack, use the hosted cassette: [demo.rasat.dev](https://demo.rasat.dev). Same product UI, synthetic shop data in the browser — no ClickHouse, no OTLP. This page is for filling **your** Rasat with seed or load traffic.
+
 `rasat-seed` and `rasat-bench` are **separate commands**. They are not in the Rasat container. They speak OTLP/HTTP at a process that is already up — the same way an SDK would.
 
 Jaeger ships HotROD the same way: demo traffic is an app you point at the collector, not a sidecar inside the server image. Load generators (k6, vegeta, project-specific benches) stay out of production images.
