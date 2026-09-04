@@ -6,7 +6,7 @@
 
 Self-hosted observability for **OpenTelemetry traces**, structured **logs**, and a **service map**. One process serves the UI, ingest, and query. **Your ClickHouse** stores the data.
 
-**Website:** [https://rasat.dev](https://rasat.dev) · **Docs:** [getting started](https://rasat.dev/docs/getting-started) · **Source:** [github.com/odurgut/rasat](https://github.com/odurgut/rasat)
+**Website:** [https://rasat.dev](https://rasat.dev) · **Demo:** [https://demo.rasat.dev](https://demo.rasat.dev) · **Docs:** [getting started](https://rasat.dev/docs/getting-started) · **Source:** [github.com/odurgut/rasat](https://github.com/odurgut/rasat)
 
 This image is **linux/amd64** and **linux/arm64**, distroless, non-root. It does **not** include ClickHouse, `rasat-seed`, or `rasat-bench`.
 

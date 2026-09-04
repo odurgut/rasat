@@ -12,7 +12,8 @@
 
 Self-hosted observability for **OpenTelemetry traces**, structured **logs**, and a **service map**. One process serves the UI, ingest, and query. **Your ClickHouse** stores the data.
 
-**Website and docs:** [https://rasat.dev](https://rasat.dev) · [docs/](docs/index.md) · [compatibility](docs/compatibility.md)
+**Website and docs:** [https://rasat.dev](https://rasat.dev) · [docs/](docs/index.md) · [compatibility](docs/compatibility.md)  
+**Demo:** [https://demo.rasat.dev](https://demo.rasat.dev) — synthetic shop cassette, not ingest
 
 This version has **no login**. Anyone who can reach the HTTP port can query and ingest. Bind it to a network you trust. What is missing: [Current limits](docs/limits.md).
 

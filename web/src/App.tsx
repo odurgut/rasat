@@ -22,6 +22,10 @@ export function App() {
     applyTheme(theme);
   }, [theme]);
 
+  useEffect(() => {
+    document.title = `${view[0]?.toUpperCase() ?? ""}${view.slice(1)} — Rasat`;
+  }, [view]);
+
   function clearTraceURL(): void {
     const form = formFromSearchParams(new URLSearchParams(window.location.search));
     writePageURL(form, "");
