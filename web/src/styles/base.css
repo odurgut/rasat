@@ -2266,19 +2266,77 @@ p {
 }
 
 @media (max-width: 1023px) {
+  html,
+  body,
+  #root {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+
   .shell {
     height: auto;
     min-height: 100vh;
+    min-height: 100dvh;
     overflow: visible;
+  }
+
+  .shell-rail {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    flex-wrap: wrap;
+    align-items: center;
+    row-gap: 0;
+    padding-top: max(0.3rem, env(safe-area-inset-top));
+    padding-left: max(0.5rem, env(safe-area-inset-left));
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+  }
+
+  .shell-rail .brand a {
+    padding: 0.4rem 0.45rem 0.4rem 0.15rem;
+  }
+
+  .shell-rail-foot {
+    margin: 0 0 0 auto;
+    gap: 0.55rem;
+  }
+
+  .theme-pair {
+    padding: 0.35rem 0;
   }
 
   .shell-rail .nav {
-    flex-wrap: wrap;
+    flex: 1 0 100%;
+    order: 3;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    gap: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    border-top: 1px solid var(--line);
+    margin-top: 0.1rem;
+  }
+
+  .shell-rail .nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rail-tab {
+    flex: none;
+    padding: 0.65rem 0.85rem 0.55rem;
+    white-space: nowrap;
+    touch-action: manipulation;
   }
 
   .shell-main {
-    overflow: visible;
+    overflow-x: hidden;
+    overflow-y: visible;
     position: static;
+    max-width: 100%;
   }
 
   .shell-view.is-idle {
@@ -2300,8 +2358,11 @@ p {
   .pane-list,
   .pane-work,
   .pane-detail {
-    overflow: visible;
+    overflow-x: auto;
+    overflow-y: visible;
     height: auto;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .pane-list {
@@ -2317,12 +2378,47 @@ p {
   .pane-scroll,
   .pane-work-scroll,
   .pane-detail-scroll {
-    overflow: visible;
+    overflow-x: auto;
+    overflow-y: visible;
+    max-width: 100%;
+  }
+
+  .pane-work-scroll.map-work {
+    overflow: auto;
   }
 
   .page {
     height: auto;
-    overflow: visible;
+    overflow-x: hidden;
+    overflow-y: visible;
+    max-width: 100%;
+    padding-left: max(0.85rem, env(safe-area-inset-left));
+    padding-right: max(0.85rem, env(safe-area-inset-right));
+  }
+
+  .page-head {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.45rem 0.75rem;
+    padding-left: max(1.15rem, env(safe-area-inset-left));
+    padding-right: max(1.15rem, env(safe-area-inset-right));
+  }
+
+  .page .page-head {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .page-head-tools {
+    flex-wrap: wrap;
+  }
+
+  .search-form.is-wide {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .field-input {
+    font-size: 16px;
   }
 
   .card-kpis,
@@ -2335,8 +2431,41 @@ p {
     grid-column: auto;
   }
 
+  .dash-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dash-kpi:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .map-work {
+    flex-direction: column;
+    min-height: min(70vh, 36rem);
+    max-width: 100%;
+  }
+
+  .map-stage {
+    min-height: min(62vh, 32rem);
+    max-width: 100%;
+  }
+
+  .map-modes {
+    position: static;
+    flex: none;
+    padding: 0.45rem 0.75rem 0.25rem;
+  }
+
   .wf {
-    grid-template-columns: minmax(8em, 40%) 0 1fr 5.5em;
+    grid-template-columns: minmax(7.5em, 38%) 0 minmax(0, 1fr) 4.25em;
+  }
+
+  .wf-svc,
+  .wf-axis > .wf-axis-cell:nth-child(2) {
+    overflow: hidden;
+    visibility: hidden;
+    padding: 0;
+    pointer-events: none;
   }
 
   .wf-insight.is-split {
@@ -2363,5 +2492,46 @@ p {
   .wf-svc {
     overflow: hidden;
     padding: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .search-form.is-wide {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0.75rem 0.75rem 0.9rem;
+  }
+
+  .rail-version {
+    max-width: 6.5rem;
+  }
+
+  .page-head-tools {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .data-table {
+    min-width: 0;
+  }
+
+  .data-table-head,
+  .data-table-row {
+    grid-template-columns: 5.1rem minmax(5.5rem, 0.9fr) minmax(0, 1.4fr) 5.6rem;
+    gap: 0.45rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .data-table-head > :nth-child(4),
+  .data-table-head > :nth-child(6),
+  .data-table-row > :nth-child(4),
+  .data-table-id {
+    display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .rail-tab {
+    padding: 0.65rem 0.55rem 0.55rem;
   }
 }

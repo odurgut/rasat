@@ -41,6 +41,7 @@ Logs use a structured JSON API today, optionally correlated by trace id.
 | | |
 |---|---|
 | [Getting started](getting-started.md) | Point Rasat at ClickHouse and send traces |
+| [When to use Rasat](when.md) | Versus SigNoz, Jaeger, Tempo — Docker, Kubernetes, RAM, scale |
 | [Hosted demo](https://demo.rasat.dev) | Cassette UI — synthetic shop, not ingest |
 | [Compatibility](compatibility.md) | ClickHouse, OTLP, OS, Docker — what we support |
 | [Concepts](concepts.md) | Traces, logs, derived metrics, live data, time windows |
@@ -54,7 +55,7 @@ Logs use a structured JSON API today, optionally correlated by trace id.
 | [Demo data and load](demo-and-load.md) | Hosted cassette, then `rasat-seed` / `rasat-bench` |
 | [Configuration](configuration.md) | Environment variables |
 | [HTTP API](api.md) | Query, ingest, and stream reference |
-| [Changelog](changelog.md) | Releases and `GET /version` |
+| [Changelog](changelog.md) | Notable changes per release |
 | [Current limits](limits.md) | What this version does not include |
 
 Rasat is production-oriented: bounded queries, timeouts, graceful shutdown, and ingest that does not stall because a browser is slow. It is also honest about scope — see [Current limits](limits.md). Licensed under [Apache 2.0](../LICENSE).

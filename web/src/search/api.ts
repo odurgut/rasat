@@ -198,6 +198,10 @@ export function buildLogParams(form: LogForm): URLSearchParams {
   if (traceID) {
     p.set("trace_id", traceID);
   }
+  const spanID = form.span_id.trim();
+  if (spanID) {
+    p.set("span_id", spanID);
+  }
   return p;
 }
 

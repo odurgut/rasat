@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Chrome } from "./chrome/Chrome";
-import { applyTheme, readTheme, type Theme } from "./theme";
+import { applyTheme, readTheme, rememberTheme, watchSystemTheme, type Theme } from "./theme";
 import { type View } from "./views";
 import { OverviewView } from "./search/OverviewView";
 import { ServicesView } from "./search/ServicesView";
@@ -21,6 +21,8 @@ export function App() {
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);
+
+  useEffect(() => watchSystemTheme(setTheme), []);
 
   useEffect(() => {
     document.title = `${view[0]?.toUpperCase() ?? ""}${view.slice(1)} — Rasat`;
@@ -88,7 +90,10 @@ export function App() {
           }
           go(v);
         }}
-        onTheme={setTheme}
+        onTheme={(next) => {
+          rememberTheme(next);
+          setTheme(next);
+        }}
       />
       <div className="shell-main">
         {seen.has("overview") ? (

@@ -45,7 +45,7 @@ Liveness. Does not ping ClickHouse.
 <p class="api-status">200</p>
 
 ```json
-{ "ok": true, "version": "v0.1.1" }
+{ "ok": true, "version": "v0.1.2" }
 ```
 
 <p class="api-label">example</p>
@@ -99,7 +99,7 @@ Build identity from link flags. A tag is `vMAJOR.MINOR.PATCH`. Untagged builds u
 <p class="api-status">200</p>
 
 ```json
-{ "version": "v0.1.1", "commit": "a1b2c3d" }
+{ "version": "v0.1.2", "commit": "a1b2c3d" }
 ```
 
 <p class="api-label">example</p>

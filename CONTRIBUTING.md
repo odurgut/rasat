@@ -83,8 +83,8 @@ That tag builds `odurgut/rasat:0.1.1`, `:0.1`, and `:latest` (`linux/amd64`, `li
 
 In the same PR that you are about to tag (or immediately after):
 
-1. Move **Unreleased** bullets under `## 0.1.1` (the tag without the `v`).
-2. Leave an empty **Unreleased** section for the next cycle.
+1. Move **Unreleased** items under `## 0.1.1 — YYYY-MM-DD` (tag without the `v`, date of the tag in UTC). Group as **Added**, **Changed**, **Fixed**, or **Removed**. Omit empty groups. Write for operators: what they see or must do, not internals.
+2. Leave `## Unreleased` at the top with no bullets.
 3. Pin install snippets and Hub examples to the new patch when you intend people to pull it (`odurgut/rasat:0.1.1`).
 
 Hub credentials are the GitHub Environment **`DOCKERHUB`**. Overview updates need a Hub PAT with **Read, Write, and Delete**. Image push is not enough.

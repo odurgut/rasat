@@ -26,7 +26,6 @@ export function MapView({ active, onOpen, onOpenService }: MapViewProps) {
   const [mode, setMode] = useState<"calls" | "errors">("calls");
   const seq = useRef(0);
   const nodesRef = useRef(nodes);
-  const fetching = useRef(false);
   nodesRef.current = nodes;
 
   useEffect(() => {
@@ -36,20 +35,20 @@ export function MapView({ active, onOpen, onOpenService }: MapViewProps) {
     let closed = false;
     const ac = new AbortController();
     const load = async (signal?: AbortSignal) => {
-      if (fetching.current) {
-        return;
-      }
-      fetching.current = true;
       const n = ++seq.current;
       try {
         const form = catalogForm();
-        const [graph, metrics] = await Promise.all([
-          getServiceMap(form, signal),
-          getMetrics({ start: form.start, end: form.end, limit: "100" }, signal).then(
-            (body) => body.metrics,
-            () => [],
-          ),
-        ]);
+        const graph = await getServiceMap(form, signal);
+        if (closed || n !== seq.current) {
+          return;
+        }
+        setNodes(graph.nodes);
+        setEdges(graph.edges);
+        setStatus("ok");
+        const metrics = await getMetrics({ start: form.start, end: form.end, limit: "100" }, signal).then(
+          (body) => body.metrics,
+          () => [],
+        );
         if (closed || n !== seq.current) {
           return;
         }
@@ -59,10 +58,7 @@ export function MapView({ active, onOpen, onOpenService }: MapViewProps) {
             nextP95[m.service] = m.p95_ns;
           }
         }
-        setNodes(graph.nodes);
-        setEdges(graph.edges);
         setP95(nextP95);
-        setStatus("ok");
       } catch (e) {
         if (closed || n !== seq.current) {
           return;
@@ -76,10 +72,6 @@ export function MapView({ active, onOpen, onOpenService }: MapViewProps) {
         setP95({});
         setError(msg);
         setStatus("error");
-      } finally {
-        if (n === seq.current) {
-          fetching.current = false;
-        }
       }
     };
     void load(ac.signal);

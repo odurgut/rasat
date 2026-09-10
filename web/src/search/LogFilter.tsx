@@ -11,7 +11,7 @@ type LogFilterProps = {
   onReset: () => void;
 };
 
-const fields: { key: Exclude<keyof LogForm, "service">; label: string; placeholder: string }[] = [
+const fields: { key: Exclude<keyof LogForm, "service" | "span_id">; label: string; placeholder: string }[] = [
   { key: "level", label: "level", placeholder: "ERROR" },
   { key: "trace_id", label: "trace", placeholder: "abc123" },
   { key: "start", label: "start", placeholder: "2026-08-26T00:00:00Z" },

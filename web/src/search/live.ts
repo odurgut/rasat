@@ -212,6 +212,10 @@ export function logMatchesForm(row: LogRow, form: LogForm, liveTail: boolean): b
   if (traceID && row.trace_id !== traceID) {
     return false;
   }
+  const spanID = form.span_id.trim();
+  if (spanID && row.span_id !== spanID) {
+    return false;
+  }
   const ts = Date.parse(row.timestamp);
   if (!Number.isFinite(ts)) {
     return false;

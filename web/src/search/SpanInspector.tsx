@@ -62,6 +62,7 @@ export function SpanInspector({
             service: "",
             level: "",
             trace_id: traceID,
+            span_id: span.span_id,
             start: w.start,
             end: w.end,
             limit: "50",
@@ -88,7 +89,7 @@ export function SpanInspector({
       }
     })();
     return () => ac.abort();
-  }, [traceID, span.timestamp, span.duration_ns, form.start, form.end]);
+  }, [traceID, span.span_id, span.timestamp, span.duration_ns, form.start, form.end]);
 
   return (
     <>

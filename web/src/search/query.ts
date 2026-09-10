@@ -178,6 +178,7 @@ export type LogForm = {
   service: string;
   level: string;
   trace_id: string;
+  span_id: string;
   start: string;
   end: string;
   limit: string;
@@ -189,6 +190,7 @@ export function defaultLogForm(now = new Date(), traceID = ""): LogForm {
     service: "",
     level: "",
     trace_id: traceID.trim(),
+    span_id: "",
     start: d.start,
     end: d.end,
     limit: d.limit,

@@ -48,7 +48,7 @@ docker run -d --name rasat \
   -e RASAT_CLICKHOUSE_DATABASE=rasat \
   -e RASAT_CLICKHOUSE_USER=rasat \
   -e RASAT_CLICKHOUSE_PASSWORD=rasat \
-  odurgut/rasat:0.1.1
+  odurgut/rasat:0.1.2
 ```
 
 On Linux, add `--add-host=host.docker.internal:host-gateway` if the ClickHouse port is on the host. If both containers share a Docker network, use the ClickHouse service hostname instead of `host.docker.internal`. Same variables on a host binary (`make build` then `bin/rasat`).
@@ -86,7 +86,7 @@ services:
       start_period: 20s
 
   rasat:
-    image: odurgut/rasat:0.1.1
+    image: odurgut/rasat:0.1.2
     ports:
       - "8080:8080"
       - "4317:4317"
