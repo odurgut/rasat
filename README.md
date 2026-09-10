@@ -46,7 +46,7 @@ export OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
 
 ## Contribute
 
-[CONTRIBUTING.md](CONTRIBUTING.md): `main` only, semver tags, CI, and how a release reaches Docker Hub.
+[CONTRIBUTING.md](CONTRIBUTING.md): `main` only, semver tags, CI, and how a release reaches Docker Hub. [Code of Conduct](CODE_OF_CONDUCT.md). [Security policy](SECURITY.md).
 
 ## License
 

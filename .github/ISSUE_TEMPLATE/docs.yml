@@ -1,0 +1,27 @@
+name: Docs
+description: A docs page is wrong, missing, or unclear
+title: "[docs] "
+labels: ["docs"]
+body:
+  - type: markdown
+    attributes:
+      value: User-facing docs are [rasat.dev](https://rasat.dev) (this repo's `docs/` tree).
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: URL or path, e.g. https://rasat.dev/getting-started or `docs/configuration.md`
+      placeholder: https://rasat.dev/…
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong or missing
+    validations:
+      required: true
+  - type: textarea
+    id: suggest
+    attributes:
+      label: Suggested fix
+      description: Optional.

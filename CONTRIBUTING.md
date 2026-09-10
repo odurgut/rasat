@@ -2,6 +2,8 @@
 
 User documentation lives in [docs/](docs/index.md) and is what [rasat.dev](https://rasat.dev) publishes. Write it for people who run Rasat, not for people browsing this tree. If a change alters behavior, env vars, ports, or the image, update those pages in the same pull request.
 
+Participation is covered by the [Code of Conduct](CODE_OF_CONDUCT.md). Report a security problem privately: [SECURITY.md](SECURITY.md).
+
 ## Branches
 
 `main` is the only long-lived branch. It is what CI tests and what a release tag points at.

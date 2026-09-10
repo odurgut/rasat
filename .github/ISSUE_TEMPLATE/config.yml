@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://rasat.dev
+    about: How to run Rasat, send OTLP, and what this version does
+  - name: Security report
+    url: https://github.com/odurgut/rasat/security/advisories/new
+    about: Report a vulnerability privately. Do not file a public issue.

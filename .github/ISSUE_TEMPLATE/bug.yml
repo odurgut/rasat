@@ -1,0 +1,54 @@
+name: Bug
+description: Something in Rasat does not work as documented
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for a defect. Missing auth, Helm, tenants, or alerting is [documented scope](https://rasat.dev/limits), not a bug.
+
+        Security problems: **Security → Report a vulnerability**, not a public issue.
+  - type: input
+    id: version
+    attributes:
+      label: Rasat version
+      description: Image tag or `GET /version`. Example `0.1.2`.
+      placeholder: "0.1.2"
+    validations:
+      required: true
+  - type: dropdown
+    id: run
+    attributes:
+      label: How you run it
+      options:
+        - Docker image (Hub)
+        - docker compose from this repo (`make compose-build` or `make compose-up`)
+        - Binary (`make build` / `go build`)
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Enough for someone else to hit the same path. Do not paste passwords or tokens.
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Logs or extra context
+      description: Optional. Redact secrets.
