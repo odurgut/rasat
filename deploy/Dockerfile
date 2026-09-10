@@ -1,13 +1,15 @@
 # syntax=docker/dockerfile:1
 
-FROM node:22-alpine AS web
+# Node and the Go compiler run on the builder. QEMU cannot run Node on arm64
+# (SIGILL / hung `npm ci`). The binary is cross-compiled for TARGETARCH.
+FROM --platform=$BUILDPLATFORM node:22-alpine AS web
 WORKDIR /src/web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
 COPY web/ ./
 RUN npm run build
 
-FROM golang:1.24-alpine AS build
+FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS build
 WORKDIR /src
 RUN apk add --no-cache git ca-certificates
 COPY go.mod go.sum ./
@@ -17,7 +19,9 @@ COPY --from=web /src/internal/ui/dist ./internal/ui/dist
 # Pass from the host (`make compose-build`) or the release workflow. .git is not in the image context.
 ARG VERSION=dev
 ARG COMMIT=none
-RUN CGO_ENABLED=0 GOOS=linux go build \
+ARG TARGETOS=linux
+ARG TARGETARCH
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
   -trimpath \
   -ldflags="-s -w -X github.com/odurgut/rasat/internal/version.Version=${VERSION} -X github.com/odurgut/rasat/internal/version.Commit=${COMMIT}" \
   -o /out/rasat ./cmd/rasat
