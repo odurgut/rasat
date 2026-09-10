@@ -20,7 +20,7 @@ While major is **0**:
 
 | Bump | Use for |
 |---|---|
-| **PATCH** (`v0.1.1`) | Fixes, docs, internals. No intended break to env vars, HTTP query API, OTLP paths, or the image contract. |
+| **PATCH** (`v0.1.2`) | Fixes, docs, internals. No intended break to env vars, HTTP query API, OTLP paths, or the image contract. |
 | **MINOR** (`v0.2.0`) | Features. May break those contracts; list the break in the changelog. |
 | **MAJOR** (`v1.0.0`) | When install, query API, and env vars are a stable contract. |
 
@@ -75,17 +75,17 @@ CI on `main` is green, changelog **Unreleased** lists what is going out, then:
 ```bash
 git checkout main
 git pull
-git tag v0.1.1
-git push origin v0.1.1
+git tag v0.1.2
+git push origin v0.1.2
 ```
 
-That tag builds `odurgut/rasat:0.1.1`, `:0.1`, and `:latest` (`linux/amd64`, `linux/arm64`) and opens the GitHub Release. The same tag dispatches [odurgut/rasat-demo](https://github.com/odurgut/rasat-demo) so the hosted cassette matches the image. A failed Worker must not fail Hub.
+That tag builds `odurgut/rasat:0.1.2`, `:0.1`, and `:latest` (`linux/amd64`, `linux/arm64`) and opens the GitHub Release. The same tag dispatches [odurgut/rasat-demo](https://github.com/odurgut/rasat-demo) so the hosted cassette matches the image. A failed Worker must not fail Hub.
 
 In the same PR that you are about to tag (or immediately after):
 
-1. Move **Unreleased** items under `## 0.1.1 — YYYY-MM-DD` (tag without the `v`, date of the tag in UTC). Group as **Added**, **Changed**, **Fixed**, or **Removed**. Omit empty groups. Write for operators: what they see or must do, not internals.
+1. Move **Unreleased** items under `## 0.1.2 — YYYY-MM-DD` (tag without the `v`, date of the tag in UTC). Group as **Added**, **Changed**, **Fixed**, or **Removed**. Omit empty groups. Write for operators: what they see or must do, not internals.
 2. Leave `## Unreleased` at the top with no bullets.
-3. Pin install snippets and Hub examples to the new patch when you intend people to pull it (`odurgut/rasat:0.1.1`).
+3. Pin install snippets and Hub examples to the new patch when you intend people to pull it (`odurgut/rasat:0.1.2`).
 
 Hub credentials are the GitHub Environment **`DOCKERHUB`**. Overview updates need a Hub PAT with **Read, Write, and Delete**. Image push is not enough.
 
